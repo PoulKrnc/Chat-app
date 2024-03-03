@@ -1,0 +1,47 @@
+name: pavli_text
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.4.0-77.0.dev <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+    
+  cupertino_icons: ^1.0.2
+  firebase_auth: ^4.2.2
+  firebase_core: ^2.8.0
+  cloud_firestore: ^4.4.5
+  firebase_messaging: ^14.3.0
+  flutter_local_notifications: ^16.3.2
+  http: ^1.2.0
+  firebase_storage: ^11.2.6
+  date_time: ^0.10.0
+  animated_bottom_navigation_bar: ^1.2.0
+  flame: ^1.6.0
+  flutter_notification_channel: ^2.0.0
+  plain_notification_token: ^0.0.4
+  firebase_in_app_messaging: ^0.7.1+1
+  provider: ^6.0.5
+  path_provider: ^2.0.15
+  email_validator: ^2.0.1
+  intl: ^0.18.0
+  flutter_profile_picture: ^2.0.0
+  adaptive_theme: ^3.4.1
+  awesome_select: ^6.0.0
+  cloud_functions: ^4.6.0
+  image_picker_android: ^0.8.9+3
+  image_picker: ^1.0.7
+  awesome_notifications_core: 0.9.1
+  awesome_notifications: any
+  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
