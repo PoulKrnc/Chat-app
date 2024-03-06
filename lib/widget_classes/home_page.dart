@@ -1,11 +1,13 @@
 // ignore_for_file: library_private_types_in_public_api, prefer_typing_uninitialized_variables, avoid_print, avoid_unnecessary_containers, prefer_final_fields
 
+import 'dart:developer';
+
+//import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pavli_text/utils/notification_controller.dart';
-import 'package:pavli_text/utils/notification_send.dart';
 import 'contacts_page.dart';
 import 'profile_page.dart';
 
@@ -101,10 +103,11 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(fontSize: 23),
               ),
               GestureDetector(
-                onTap: () {
-                  NotificationController.createNewNotification(RemoteMessage(
-                      notification:
-                          RemoteNotification(title: "Hello", body: "Helllo1")));
+                onTap: () async {
+                  /*NotificationLifeCycle tls =
+                      await AwesomeNotifications().getAppLifeCycle();
+                  log(tls.toString());*/
+                  /*AwesomeNotifications().removeChannel("Poul");*/
                   /*awesomeNotification(RemoteMessage(
                       notification:
                           RemoteNotification(title: "Hello", body: "Helllo1")));*/

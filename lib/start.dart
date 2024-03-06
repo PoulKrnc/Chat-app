@@ -37,6 +37,7 @@ class _StartPageState extends State<StartPage> {
   Map<String, dynamic> setupsList = {};
 
   void setups() async {
+    tokenSetup();
     await db.collection("utils").doc("version").get().then(
       (value) {
         setupsList["Version"] = value.data()!["version"];
@@ -52,6 +53,43 @@ class _StartPageState extends State<StartPage> {
     });
   }
 
+  void tokenSetup() async {
+    final messaging = FirebaseMessaging.instance;
+    String? token = await messaging.getToken();
+    var doc = db.collection("users").doc(user.email!);
+    Map<String, dynamic> data = {};
+    await doc
+        .get()
+        .then((DocumentSnapshot<Map<String, dynamic>> snapshot) async {
+      data = snapshot.data()!;
+      await FirebaseFirestore.instance
+          .collection("nicknames")
+          .doc(data["Nickname"])
+          .update({"token": token});
+    });
+    await FirebaseFirestore.instance
+        .collection("nicknames")
+        .doc(data["Nickname"])
+        .get()
+        .then((value) async {
+      List<dynamic> tokenList = [];
+
+      try {
+        tokenList = value.data()!["tokenList"];
+      } catch (e) {
+        log(e.toString());
+      }
+      if (!tokenList.contains(token)) {
+        tokenList.add(token);
+        await FirebaseFirestore.instance
+            .collection("nicknames")
+            .doc(data["Nickname"])
+            .update({"tokenList": tokenList});
+      }
+      log(tokenList.toString());
+    });
+  }
+/*
   Future messaging() async {
     final messaging = FirebaseMessaging.instance;
     final settings = await messaging.requestPermission(
@@ -110,15 +148,14 @@ class _StartPageState extends State<StartPage> {
     if (kDebugMode) {
       //print('Registration Token=$token');
     }
-  }
+  }*/
 
-  late FlutterLocalNotificationsPlugin fln = FlutterLocalNotificationsPlugin();
+  /*late FlutterLocalNotificationsPlugin fln;
 
-  void notificationInfo() async {
+  void notificationSetup() async {
     await messaging();
     var androidInitialize =
         const AndroidInitializationSettings("@mipmap/ic_launcher");
-    //var iOSInitialize = IOSInitializationSetting();
     var initializationSettings =
         InitializationSettings(android: androidInitialize);
     fln.initialize(
@@ -179,7 +216,7 @@ class _StartPageState extends State<StartPage> {
       ActiveNotification fln1 = aflns[0];
       log("${fln1.title} : ${fln1.body} : ${fln1.channelId} : ");*/
     });
-  }
+  }*/
 //AAAAWCL3XpU:APA91bFxP_DGH1VXWWteQB9ov-KBLF3xzGmklUhlgQCMrw2H3laoTNAIeke6ccpPvxw7bQD9gYzTlzyy__55RKfjk6TuS3F8TnHwSwB_zJgaMhgUBmGA_5uSLkp8oAywzJd4Z74e6Yhk
 
   void setup() async {
@@ -200,7 +237,7 @@ class _StartPageState extends State<StartPage> {
     super.initState();
     setups();
     setup();
-    messaging();
+    //messaging();
     Map<String, dynamic> parameters = {"text": "test", "push": true};
     /*mFunc.httpsCallable("sayHi").call().then((value) {
       log(value.data.toString());
