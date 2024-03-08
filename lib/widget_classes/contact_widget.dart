@@ -112,12 +112,13 @@ class _ContactWidgetState extends State<ContactWidget> {
   Widget profilePicture() {
     try {
       storage.refFromURL(contact["ProfilePicUrl"]);
-      return Container(
-        decoration: viewedWidget(
-            null,
-            BoxDecoration(
-                border: Border.all(color: Colors.blue, width: 3.5),
-                borderRadius: BorderRadius.circular(100))),
+      return AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: viewedWidget(Colors.black, Colors.blue),
+                width: viewedWidget(0.0, 3.5)),
+            borderRadius: BorderRadius.circular(100)),
         child: ProfilePicture(
           name: contact["Nickname"],
           radius: viewedWidget(21.0, 17.5),
@@ -126,7 +127,8 @@ class _ContactWidgetState extends State<ContactWidget> {
         ),
       );
     } catch (e) {
-      return Container(
+      return AnimatedContainer(
+          duration: Duration(milliseconds: 300),
           decoration: viewedWidget(
               null,
               BoxDecoration(
@@ -220,7 +222,8 @@ class _ContactWidgetState extends State<ContactWidget> {
           onTap: () {
             onContractTap(widget.doc.id);
           },
-          child: Container(
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
             margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             decoration: BoxDecoration(
                 color: viewedWidget(null, null),

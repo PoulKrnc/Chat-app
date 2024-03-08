@@ -1,13 +1,8 @@
 // ignore_for_file: library_private_types_in_public_api, prefer_typing_uninitialized_variables, avoid_print, avoid_unnecessary_containers, prefer_final_fields
 
-import 'dart:developer';
-
-//import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:pavli_text/utils/notification_controller.dart';
 import 'contacts_page.dart';
 import 'profile_page.dart';
 
@@ -30,9 +25,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
   var db = FirebaseFirestore.instance;
   var data1;
-  String? imageUrl = "";
   PageController _pageController = PageController(initialPage: 1);
-  String dailyForecast = "";
 
   @override
   void initState() {
@@ -54,11 +47,11 @@ class _HomePageState extends State<HomePage> {
           controller: _pageController, // PageController instance
           onPageChanged: _onPageChanged, // Function to handle page change
           children: <Widget>[
+            page(),
             ContactsPage(
               data: widget.data,
               setupsList: widget.setupsList,
             ),
-            page(),
             ProfilePage(
               data: widget.data,
               setupsList: widget.setupsList,
@@ -74,8 +67,8 @@ class _HomePageState extends State<HomePage> {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.gamepad), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
         ],
         currentIndex: _selectedIndex,
@@ -84,8 +77,12 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.blue,
         unselectedFontSize: 0,
         selectedFontSize: 1,
-        unselectedIconTheme: const IconThemeData(size: 24),
-        selectedIconTheme: const IconThemeData(size: 30),
+        unselectedIconTheme: const IconThemeData(
+          size: 24,
+        ),
+        selectedIconTheme: const IconThemeData(size: 30, shadows: <Shadow>[
+          Shadow(offset: Offset(3, 3), blurRadius: 1.5, color: Colors.black54)
+        ]),
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
@@ -102,20 +99,6 @@ class _HomePageState extends State<HomePage> {
                 "HOME",
                 style: TextStyle(fontSize: 23),
               ),
-              GestureDetector(
-                onTap: () async {
-                  /*NotificationLifeCycle tls =
-                      await AwesomeNotifications().getAppLifeCycle();
-                  log(tls.toString());*/
-                  /*AwesomeNotifications().removeChannel("Poul");*/
-                  /*awesomeNotification(RemoteMessage(
-                      notification:
-                          RemoteNotification(title: "Hello", body: "Helllo1")));*/
-                },
-                child: Container(
-                  child: Text("Send notification"),
-                ),
-              )
             ],
           ),
         ),

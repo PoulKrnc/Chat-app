@@ -61,14 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
-
-  @override
   void initState() {
-    // ignore: todo
     // TODO: implement initState
     setup();
     super.initState();
@@ -77,7 +70,10 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (!setupReady) {
-      return Utils.loadingScaffold();
+      return Scaffold(
+        appBar: AppBar(),
+        body: Utils.loadingScaffold(),
+      );
     } else {
       return Scaffold(
         endDrawer: Drawer(

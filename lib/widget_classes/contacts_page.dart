@@ -6,6 +6,7 @@ import 'package:pavli_text/widget_classes/contact_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pavli_text/widget_classes/widget_helper.dart';
 
 class ContactsPage extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -39,7 +40,13 @@ class _ContactsPageState extends State<ContactsPage> {
       return const LoadingIndicatorFb1();
     }
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Container(
+          child: Row(
+            children: [ContactIconSearch(icon: Icons.search)],
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
