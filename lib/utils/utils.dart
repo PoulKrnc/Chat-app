@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unused_element, deprecated_member_use, avoid_print
 
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:flutter/services.dart';
 import 'package:pavli_text/start.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -150,4 +151,8 @@ dynamic isLightMode(BuildContext context, {dynamic lWidget, dynamic dWidget}) {
 
 void unFocusKeyboard() {
   FocusManager.instance.primaryFocus?.unfocus();
+}
+
+void clickSound() {
+  SystemSound.play(SystemSoundType.click);
 }

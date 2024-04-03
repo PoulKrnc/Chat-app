@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.gamepad), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.cookie), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
         ],

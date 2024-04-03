@@ -43,7 +43,12 @@ class _ContactsPageState extends State<ContactsPage> {
       appBar: AppBar(
         title: Container(
           child: Row(
-            children: [ContactIconSearch(icon: Icons.search)],
+            children: [
+              ContactIconSearch(
+                icon: Icons.search,
+                data: widget.data,
+              )
+            ],
           ),
         ),
       ),
@@ -298,9 +303,5 @@ class _ContactsPageState extends State<ContactsPage> {
       "LastChat":
           "This is a start of conversation between ${widget.data["Nickname"]} and $personNickname"
     });
-  }
-
-  void onNavItemTap(int index) {
-    setState(() {});
   }
 }

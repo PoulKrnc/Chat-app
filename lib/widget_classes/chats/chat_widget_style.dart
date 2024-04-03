@@ -1,6 +1,15 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, library_private_types_in_public_api
 
+import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:downloadsfolder/downloadsfolder.dart' as downloadFolder;
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -55,10 +64,132 @@ class ChatWidgetStyle extends StatefulWidget {
 }
 
 class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
+  final storage = FirebaseStorage.instance;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> downloadNotification() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    downloadNotification();
+  }
+
+  void fileDownload() async {
+    log("fileDownload");
+    Reference storageRef = storage.refFromURL(widget.doc["ImageSrc"]);
+    String fileUrl = await storageRef.getDownloadURL();
+    log(fileUrl);
+    String? downloadDirectoryPath =
+        await downloadFolder.getDownloadDirectoryPath();
+    String filePath = "$downloadDirectoryPath/${storageRef.name}";
+    File file = File(filePath);
+    //await file.create(recursive: true, exclusive: false);
+
+    final downloadTask = storageRef.writeToFile(file);
+    NotificationDetails nd = NotificationDetails(
+        android: AndroidNotificationDetails("downloadstatus", "Download Status",
+            enableVibration: false, silent: true, playSound: false));
+    flutterLocalNotificationsPlugin.show(
+        100, "PavliText", "Downloading File", nd);
+    downloadTask.snapshotEvents.listen((taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          fileDownloadState("running");
+          flutterLocalNotificationsPlugin.show(
+              100,
+              "PavliText",
+              "Downloading File",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                      "downloadstatus", "Download Status",
+                      enableVibration: false,
+                      playSound: false,
+                      showProgress: true,
+                      silent: true,
+                      progress: taskSnapshot.bytesTransferred,
+                      maxProgress: taskSnapshot.totalBytes)));
+          break;
+        case TaskState.paused:
+          fileDownloadState("paused");
+          flutterLocalNotificationsPlugin.show(
+              100,
+              "PavliText",
+              "Download was canceled",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+        case TaskState.success:
+          fileDownloadState("success");
+          flutterLocalNotificationsPlugin.show(
+              100,
+              "PavliText",
+              "Download successful",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+        case TaskState.canceled:
+          fileDownloadState("canceled");
+          flutterLocalNotificationsPlugin.show(
+              100,
+              "PavliText",
+              "Download was canceled",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+        case TaskState.error:
+          fileDownloadState("error");
+          flutterLocalNotificationsPlugin.show(
+              100,
+              "PavliText",
+              "Download failed",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+      }
+    });
+  }
+
+  void fileDownloadState(String code) {
+    log(code);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(),
+      decoration: const BoxDecoration(),
       child: Column(
         children: [
           widget.previousSender != "App"
@@ -103,7 +234,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    offset: Offset(0, 1),
+                    offset: const Offset(0, 1),
                     color: isLightMode(
                       context,
                       lWidget: Colors.grey[200],
@@ -255,8 +386,33 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
             ),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width / 2.5,
+            width: MediaQuery.of(context as BuildContext).size.width / 2.5,
           )
+        ],
+      );
+    } else if (type == "File") {
+      // TODO
+      return Row(
+        children: [
+          const Icon(Icons.picture_as_pdf, size: 40),
+          const SizedBox(
+            width: 10,
+          ),
+          Text(
+            "File sent by ${widget.doc["Sender"]}",
+            style: const TextStyle(fontSize: 20),
+          ),
+          const Spacer(),
+          GestureDetector(
+            onTap: () {
+              fileDownload();
+            },
+            child: const Icon(
+              Icons.download_rounded,
+              size: 40,
+              color: Colors.blue,
+            ),
+          ),
         ],
       );
     }

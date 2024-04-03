@@ -4,6 +4,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:flutter_document_picker/flutter_document_picker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:pavli_text/widget_classes/chats/add_attachment_item.dart';
 import 'package:pavli_text/widget_classes/chats/chat_widget_style.dart';
@@ -49,6 +51,17 @@ class _ChatPageState extends State<ChatPage> {
   // ignore: prefer_typing_uninitialized_variables
   var doc1;
   String replyText = "Repying";
+
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> downloadNotification() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
 
   void blockedCheck() async {
     var doc = db
@@ -171,6 +184,181 @@ class _ChatPageState extends State<ChatPage> {
           "ReplySender": doc1["Sender"]
         });
       }
+      var time = Timestamp.now();
+      await db
+          .collection("nicknames")
+          .doc(widget.data["Nickname"])
+          .collection("contacts")
+          .doc(widget.contact)
+          .update({
+        "LastChatDate": time,
+        "LastChat": text,
+        "LastChatSender": widget.data["Nickname"]
+      });
+      await db
+          .collection("nicknames")
+          .doc(widget.contact)
+          .collection("contacts")
+          .doc(widget.data["Nickname"])
+          .update({
+        "LastChatDate": time,
+        "LastChat": text,
+        "LastChatSender": widget.data["Nickname"]
+      });
+
+      setState(() {
+        ifReplying = false;
+        replyText = "Replying";
+      });
+
+      viewChatEdit1();
+    }
+  }
+
+  void sendDocument() async {
+    String? path = await FlutterDocumentPicker.openDocument();
+    if (path == null || path.isEmpty) {
+      return;
+    }
+    log(path);
+    log(path.substring(path.lastIndexOf(".") + 1, path.length));
+    File file = File(path);
+    String fileName = "";
+    try {
+      fileName =
+          "${DateTime.now().microsecondsSinceEpoch}.${path.substring(path.lastIndexOf(".") + 1, path.length)}";
+    } catch (e) {
+      log(e.toString());
+    }
+
+    Reference storageRef = FirebaseStorage.instance.ref();
+    Reference imageRef = storageRef.child("chats/$chatId");
+    uploadRef = imageRef.child(fileName);
+
+    log(fileName);
+    //File file1 = File(file.path);
+    NotificationDetails nd = NotificationDetails(
+        android: AndroidNotificationDetails("downloadstatus", "Download Status",
+            enableVibration: false, silent: true, playSound: false));
+    flutterLocalNotificationsPlugin.show(
+        101, "PavliText", "Uploading File", nd);
+    String picUrl = "";
+    uploadRef
+        .putData(await file.readAsBytes())
+        .asStream()
+        .listen((event) async {
+      log("thios");
+      switch (event.state) {
+        case TaskState.running:
+          log("message");
+          flutterLocalNotificationsPlugin.show(
+              101,
+              "PavliText",
+              "Uploading File",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                      "downloadstatus", "Download Status",
+                      enableVibration: false,
+                      playSound: false,
+                      showProgress: true,
+                      silent: true,
+                      progress: event.bytesTransferred,
+                      maxProgress: event.totalBytes)));
+          break;
+
+        case TaskState.paused:
+          flutterLocalNotificationsPlugin.show(
+              101,
+              "PavliText",
+              "Upload was canceled",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+
+        case TaskState.success:
+          flutterLocalNotificationsPlugin.show(
+              101,
+              "PavliText",
+              "Upload successful",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          picUrl = await uploadRef.getDownloadURL();
+          log(picUrl);
+          writeFileChat(picUrl);
+          break;
+
+        case TaskState.canceled:
+          flutterLocalNotificationsPlugin.show(
+              101,
+              "PavliText",
+              "Upload was canceled",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+
+        case TaskState.error:
+          flutterLocalNotificationsPlugin.show(
+              101,
+              "PavliText",
+              "Upload failed",
+              NotificationDetails(
+                  android: AndroidNotificationDetails(
+                "downloadstatus",
+                "Download Status",
+                enableVibration: false,
+                playSound: false,
+                silent: true,
+              )));
+          break;
+        default:
+      }
+    });
+  }
+
+  void writeFileChat(String picUrl) async {
+    if (true) {
+      String text = "File sent by ${widget.data["Nickname"]}";
+      pushNotification("Sent file");
+      if (!ifReplying) {
+        await db.collection("chats").doc(chatId).collection("chats").add({
+          "Type": "File",
+          "Text": text,
+          "ImageSrc": picUrl,
+          "Sender": widget.data["Nickname"],
+          "Date": FieldValue.serverTimestamp(),
+          "ReplyText": "",
+          "ReplySender": ""
+        });
+      } else {
+        await db.collection("chats").doc(chatId).collection("chats").add({
+          "Type": "File",
+          "Text": text,
+          "ImageSrc": picUrl,
+          "Sender": widget.data["Nickname"],
+          "Date": FieldValue.serverTimestamp(),
+          "ReplyText": replyText,
+          "ReplySender": doc1["Sender"]
+        });
+      }
+      log("2");
       var time = Timestamp.now();
       await db
           .collection("nicknames")
@@ -483,7 +671,10 @@ class _ChatPageState extends State<ChatPage> {
         .doc(widget.contact)
         .get()
         .then((value) {
-      List lst = value.data()!["ViewedBy"];
+      List lst = [];
+      try {
+        lst = value.data()!["ViewedBy"];
+      } catch (e) {}
       if (!lst.contains(widget.data["Nickname"])) {
         lst.add(widget.data["Nickname"]);
       }
@@ -516,6 +707,7 @@ class _ChatPageState extends State<ChatPage> {
     ifGroupFn();
     setChats();
     setups();
+    downloadNotification();
     attachmentsList = <Widget>[
       GestureDetector(
           onTap: attachmentListChange1,
@@ -567,7 +759,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!blockedReady || !chatIdReady) {
+    if (!blockedReady) {
       return Utils.loadingScaffold();
     }
     return GestureDetector(
@@ -621,26 +813,33 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {
       attachmentsList = <Widget>[
         GestureDetector(
-            onTap: attachmentListChange2,
+            onTap: () {
+              clickSound();
+              attachmentListChange2();
+            },
             child: AddAttachmentItem(iconData: Icons.remove_circle, size: 42)),
         GestureDetector(
             onTap: () {
+              clickSound();
               attachmentListChange2();
               sendImage(ImageSource.gallery);
             },
             child: AddAttachmentItem(iconData: Icons.image, size: 42)),
         GestureDetector(
             onTap: () {
-              attachmentListChange2();
-            },
-            child: AddAttachmentItem(
-                iconData: Icons.picture_as_pdf_rounded, size: 42)),
-        GestureDetector(
-            onTap: () {
+              clickSound();
               attachmentListChange2();
               sendImage(ImageSource.camera);
             },
             child: AddAttachmentItem(iconData: Icons.camera_alt, size: 42)),
+        GestureDetector(
+            onTap: () {
+              clickSound();
+              attachmentListChange2();
+              sendDocument();
+            },
+            child: AddAttachmentItem(
+                iconData: Icons.picture_as_pdf_rounded, size: 42)),
       ];
       attWidth = attachmentsList.length * 42 + 18;
     });
@@ -1074,6 +1273,8 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void removeFromContacts() async {
+    Navigator.pop(context);
+    Navigator.pop(context);
     await db.collection("chats").doc(chatId).delete();
     await db
         .collection('nicknames')
@@ -1087,11 +1288,11 @@ class _ChatPageState extends State<ChatPage> {
         .collection("contacts")
         .doc(widget.data["Nickname"])
         .delete();
-    Navigator.pop(context);
-    Navigator.pop(context);
   }
 
   void unBlockUser() async {
+    Navigator.pop(context);
+    Navigator.pop(context);
     await db
         .collection('nicknames')
         .doc(widget.data["Nickname"])
@@ -1104,11 +1305,11 @@ class _ChatPageState extends State<ChatPage> {
         .collection("contacts")
         .doc(widget.data["Nickname"])
         .update({"Blocked": false, "BlockedBy": ""});
-    Navigator.pop(context);
-    Navigator.pop(context);
   }
 
   void blockUser() async {
+    Navigator.pop(context);
+    Navigator.pop(context);
     await db
         .collection('nicknames')
         .doc(widget.data["Nickname"])
@@ -1121,7 +1322,5 @@ class _ChatPageState extends State<ChatPage> {
         .collection("contacts")
         .doc(widget.data["Nickname"])
         .update({"Blocked": true, "BlockedBy": widget.data["Nickname"]});
-    Navigator.pop(context);
-    Navigator.pop(context);
   }
 }

@@ -1,13 +1,10 @@
 import 'dart:developer';
-import 'dart:ui';
 
 import 'package:pavli_text/widget_classes/chats/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 
 class ContactWidget extends StatefulWidget {
