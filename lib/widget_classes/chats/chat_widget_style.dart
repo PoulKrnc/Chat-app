@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:downloadsfolder/downloadsfolder.dart' as downloadFolder;
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
@@ -55,10 +56,12 @@ class ChatWidgetStyle extends StatefulWidget {
       {super.key,
       required this.chatSticker,
       required this.doc,
-      required this.previousSender});
+      required this.previousSender,
+      required this.scaleFactor});
   final previousSender;
   final chatSticker;
   final doc;
+  final scaleFactor;
   @override
   _ChatWidgetStyleState createState() => _ChatWidgetStyleState();
 }
@@ -67,12 +70,13 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
   final storage = FirebaseStorage.instance;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  int scaleFactor = 1;
 
   Future<void> downloadNotification() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
     final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+        const InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
@@ -95,7 +99,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
     //await file.create(recursive: true, exclusive: false);
 
     final downloadTask = storageRef.writeToFile(file);
-    NotificationDetails nd = NotificationDetails(
+    NotificationDetails nd = const NotificationDetails(
         android: AndroidNotificationDetails("downloadstatus", "Download Status",
             enableVibration: false, silent: true, playSound: false));
     flutterLocalNotificationsPlugin.show(
@@ -124,7 +128,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
               100,
               "PavliText",
               "Download was canceled",
-              NotificationDetails(
+              const NotificationDetails(
                   android: AndroidNotificationDetails(
                 "downloadstatus",
                 "Download Status",
@@ -139,7 +143,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
               100,
               "PavliText",
               "Download successful",
-              NotificationDetails(
+              const NotificationDetails(
                   android: AndroidNotificationDetails(
                 "downloadstatus",
                 "Download Status",
@@ -154,7 +158,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
               100,
               "PavliText",
               "Download was canceled",
-              NotificationDetails(
+              const NotificationDetails(
                   android: AndroidNotificationDetails(
                 "downloadstatus",
                 "Download Status",
@@ -169,7 +173,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
               100,
               "PavliText",
               "Download failed",
-              NotificationDetails(
+              const NotificationDetails(
                   android: AndroidNotificationDetails(
                 "downloadstatus",
                 "Download Status",
@@ -263,6 +267,8 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                                 style: const TextStyle(
                                     color: Colors.blue,
                                     fontWeight: FontWeight.bold),
+                                textScaler:
+                                    TextScaler.linear(widget.scaleFactor),
                               ),
                               const SizedBox(
                                 width: 20,
@@ -272,6 +278,8 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                                 style: const TextStyle(
                                     color: Colors.blue,
                                     fontWeight: FontWeight.bold),
+                                textScaler:
+                                    TextScaler.linear(widget.scaleFactor),
                               ),
                             ],
                           ),
@@ -281,17 +289,19 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                         padding: const EdgeInsets.fromLTRB(3, 1, 1, 1),
                         child: Column(
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Expanded(
                                   child: Text(
                                     "Replying to: ",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold),
+                                    textScaler:
+                                        TextScaler.linear(widget.scaleFactor),
                                   ),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   width: 20,
                                 )
                               ],
@@ -313,6 +323,8 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                                               color: Colors.blue.shade400,
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold),
+                                          textScaler: TextScaler.linear(
+                                              widget.scaleFactor),
                                         ),
                                       ),
                                       const SizedBox(
@@ -326,6 +338,8 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                                         child: Text(
                                           widget.doc["ReplyText"].toString(),
                                           style: const TextStyle(fontSize: 14),
+                                          textScaler: TextScaler.linear(
+                                              widget.scaleFactor),
                                         ),
                                       ),
                                       const SizedBox(
@@ -365,6 +379,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
             child: Text(
               widget.doc["Text"].toString(),
               style: const TextStyle(fontSize: 20),
+              textScaler: TextScaler.linear(widget.scaleFactor),
             ),
           ),
           const SizedBox(
@@ -394,23 +409,30 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
       // TODO
       return Row(
         children: [
-          const Icon(Icons.picture_as_pdf, size: 40),
+          const Expanded(flex: 1, child: Icon(Icons.picture_as_pdf, size: 40)),
           const SizedBox(
             width: 10,
           ),
-          Text(
-            "File sent by ${widget.doc["Sender"]}",
-            style: const TextStyle(fontSize: 20),
+          Expanded(
+            flex: 7,
+            child: Text(
+              "File sent by ${widget.doc["Sender"]}",
+              style: const TextStyle(fontSize: 20),
+              textScaler: TextScaler.linear(widget.scaleFactor),
+            ),
           ),
-          const Spacer(),
-          GestureDetector(
-            onTap: () {
-              fileDownload();
-            },
-            child: const Icon(
-              Icons.download_rounded,
-              size: 40,
-              color: Colors.blue,
+          //const Spacer(),
+          Expanded(
+            flex: 1,
+            child: GestureDetector(
+              onTap: () {
+                fileDownload();
+              },
+              child: const Icon(
+                Icons.download_rounded,
+                size: 40,
+                color: Colors.blue,
+              ),
             ),
           ),
         ],

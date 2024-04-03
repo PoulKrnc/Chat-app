@@ -34,6 +34,7 @@ class _ChatPageState extends State<ChatPage> {
   var db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
   var chatsLst = [];
+  Map<String, dynamic> data = {};
   List<Widget> lst1 = [];
   Timer? timer;
   bool backBtn = false;
@@ -48,6 +49,7 @@ class _ChatPageState extends State<ChatPage> {
   List chatUsers = [];
   bool ifGroup = false;
   bool ifReplying = false;
+  double scaleFactor = 1;
   // ignore: prefer_typing_uninitialized_variables
   var doc1;
   String replyText = "Repying";
@@ -731,6 +733,22 @@ class _ChatPageState extends State<ChatPage> {
         contact = value.data()!;
       });
     });
+
+    await db
+        .collection("nicknames")
+        .doc(widget.data["Nickname"])
+        .get()
+        .then((value) {
+      setState(() {
+        data = value.data()!;
+      });
+    });
+    try {
+      scaleFactor = data["ScaleFactor"];
+    } catch (e) {
+      log(e.toString());
+    }
+    log(scaleFactor.toString());
     setState(() {
       setupsReady = true;
     });
@@ -1007,6 +1025,7 @@ class _ChatPageState extends State<ChatPage> {
                                   chatSticker: chatSticker,
                                   previousSender: previousSender,
                                   doc: doc,
+                                  scaleFactor: scaleFactor,
                                 )
                                 //
                                 );
