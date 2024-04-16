@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:pavli_text/widget_classes/game_page.dart';
 import 'contacts_page.dart';
 import 'profile_page.dart';
 
@@ -47,7 +48,10 @@ class _HomePageState extends State<HomePage> {
           controller: _pageController, // PageController instance
           onPageChanged: _onPageChanged, // Function to handle page change
           children: <Widget>[
-            page(),
+            GamePage(
+              data: widget.data,
+              setupsList: widget.setupsList,
+            ),
             ContactsPage(
               data: widget.data,
               setupsList: widget.setupsList,
@@ -67,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       child: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.cookie), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.gamepad), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: ""),
         ],

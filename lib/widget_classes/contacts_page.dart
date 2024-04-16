@@ -124,6 +124,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
   void addContact() {
     showModalBottomSheet(
+        showDragHandle: true,
         isScrollControlled: true,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
@@ -142,7 +143,7 @@ class _ContactsPageState extends State<ContactsPage> {
                       Container(
                         padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
                         child: const Text(
-                          "Type an existing username:",
+                          "Type a valid username:",
                           style: TextStyle(
                               color: Colors.blue, fontWeight: FontWeight.bold),
                         ),

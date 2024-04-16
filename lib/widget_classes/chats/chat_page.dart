@@ -1026,6 +1026,8 @@ class _ChatPageState extends State<ChatPage> {
                                   previousSender: previousSender,
                                   doc: doc,
                                   scaleFactor: scaleFactor,
+                                  contact: widget.contact,
+                                  user: widget.data["Nickname"],
                                 )
                                 //
                                 );

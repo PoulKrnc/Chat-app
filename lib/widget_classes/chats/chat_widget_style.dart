@@ -2,15 +2,11 @@
 
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:downloadsfolder/downloadsfolder.dart' as downloadFolder;
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -57,16 +53,21 @@ class ChatWidgetStyle extends StatefulWidget {
       required this.chatSticker,
       required this.doc,
       required this.previousSender,
-      required this.scaleFactor});
+      required this.scaleFactor,
+      required this.contact,
+      required this.user});
   final previousSender;
   final chatSticker;
   final doc;
   final scaleFactor;
+  final contact;
+  final user;
   @override
   _ChatWidgetStyleState createState() => _ChatWidgetStyleState();
 }
 
 class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
+  var db = FirebaseFirestore.instance;
   final storage = FirebaseStorage.instance;
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -435,6 +436,65 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
               ),
             ),
           ),
+        ],
+      );
+    } else if (type == "GameInvitation") {
+      //TODO
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.doc["Text"].toString(),
+                  style: const TextStyle(fontSize: 20),
+                  textScaler: TextScaler.linear(widget.scaleFactor),
+                ),
+              ),
+              const SizedBox(
+                width: 20,
+              )
+            ],
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Center(
+            child: widget.doc["Sender"] != widget.user
+                ? GestureDetector(
+                    onTap: () async {
+                      clickSound();
+                      log(widget.doc["GameSession"]);
+                      log(widget.contact + widget.user);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(18)),
+                      child: const Text(
+                        "Play",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  )
+                : GestureDetector(
+                    onTap: () async {
+                      log(widget.doc["GameSession"]);
+                      log(widget.contact + widget.user);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(18)),
+                      child: const Text(
+                        "Play",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  ),
+          )
         ],
       );
     }

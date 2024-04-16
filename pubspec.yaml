@@ -36,6 +36,7 @@ dependencies:
   rxdart: ^0.27.7
   flutter_document_picker: ^5.2.3
   downloadsfolder: ^0.1.1
+  animate_gradient: ^0.0.2+1
   
 
 dev_dependencies:
@@ -45,3 +46,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+   - assets/

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -34,9 +33,13 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     // TODO: implement dispose
-    setState(() {
+    db
+        .collection("nicknames")
+        .doc(widget.data["Nickname"])
+        .update({"ScaleFactor": scaleFactor});
+    /*setState(() {
       run = false;
-    });
+    });*/
     super.dispose();
   }
 
