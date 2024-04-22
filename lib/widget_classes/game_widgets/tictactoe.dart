@@ -1,8 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:developer';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_time/date_time.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pavli_text/utils/utils.dart';
@@ -22,6 +25,7 @@ class _TictactoeState extends State<Tictactoe> {
   List<QueryDocumentSnapshot<Map<String, dynamic>>> contactList = [];
   bool invitationPending = false;
   late QueryDocumentSnapshot<Map<String, dynamic>> invitedContact;
+  bool _waiter = true;
 
   void gameSetup() async {
     db
@@ -42,7 +46,6 @@ class _TictactoeState extends State<Tictactoe> {
       var docs = value.docs;
       for (int i = 0; i < docs.length; i++) {
         if (!docs[i].data()["Blocked"]) {
-          var d = docs[1];
           setState(() {
             contactList.add(docs[i]);
           });
@@ -75,6 +78,7 @@ class _TictactoeState extends State<Tictactoe> {
       "ReplyText": "",
       "ReplySender": "",
       "Type": "GameInvitation",
+      "GameType": "TicTacToe",
       "GameSession": gameSession
     });
     var time = Timestamp.now();
@@ -106,12 +110,32 @@ class _TictactoeState extends State<Tictactoe> {
     log(doc.id);
     Utils.showSnackBar("Invited ${doc.id} to the game.");
     Navigator.of(context).pop();
-    DocumentReference<Map<String, dynamic>> sessionDoc = await db
-        .collection("gamesessions")
-        .add({
+    await db
+        .collection("nicknames")
+        .doc(widget.data["Nickname"])
+        .collection("games")
+        .doc("TicTacToe")
+        .get()
+        .then((value) async {
+      await db
+          .collection("gamesessions")
+          .doc(value.data()!["gameSession"])
+          .update({"Started": true});
+    });
+    DocumentReference<Map<String, dynamic>> sessionDoc =
+        await db.collection("gamesessions").add({
       "Host": widget.data["Nickname"],
       "Opponent": doc.id,
-      "Started": false
+      "Started": false,
+      "Data": [
+        {"1": "", "2": "", "3": ""},
+        {"1": "", "2": "", "3": ""},
+        {"1": "", "2": "", "3": ""}
+      ],
+      "Turn": doc.id,
+      "TurnData": "X",
+      "Finished": false,
+      "Winner": ""
     });
     await db
         .collection("nicknames")
@@ -124,7 +148,128 @@ class _TictactoeState extends State<Tictactoe> {
       "opponent": doc.id,
       "gameSession": sessionDoc.id
     });
+    /*await db
+        .collection("nicknames")
+        .doc(doc.id)
+        .collection("games")
+        .doc("TicTacToe")
+        .set({
+      "online": false,
+    });*/
     sendMessage(doc.id, sessionDoc.id);
+  }
+
+  void surrender(
+      AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>>
+          gameSnapshot) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Center(
+              child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).canvasColor,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "Do you really want to surrender?",
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              clickSound();
+                              String winner = "";
+                              if (gameSnapshot.data!.data()!["Host"] ==
+                                  widget.data["Nickname"]) {
+                                winner = gameSnapshot.data!.data()!["Opponent"];
+                              } else {
+                                winner = gameSnapshot.data!.data()!["Host"];
+                              }
+                              await db
+                                  .collection("gamesessions")
+                                  .doc(gameSnapshot.data!.id.toString())
+                                  .update({"Finished": true, "Winner": winner});
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              "Yes",
+                              style: Theme.of(context).textTheme.headlineLarge,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 40,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              clickSound();
+                              Navigator.of(context).pop();
+                            },
+                            child: Text(
+                              "No",
+                              style: Theme.of(context).textTheme.headlineLarge,
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  )));
+        });
+  }
+
+  void winCheck(DocumentSnapshot<Map<String, dynamic>> gameData, int x, int y,
+      String turnData) async {
+    log("winCheck");
+    List data = gameData.data()!["Data"];
+    data[x][y.toString()] = turnData;
+    bool win = false;
+    for (int i = 0; i < 3; i++) {
+      if (data[i]["1"] == turnData &&
+          data[i]["2"] == turnData &&
+          data[i]["3"] == turnData) {
+        log("win1");
+        win = true;
+      }
+      if (data[0][(i + 1).toString()] == turnData &&
+          data[1][(i + 1).toString()] == turnData &&
+          data[2][(i + 1).toString()] == turnData) {
+        log("win2");
+        win = true;
+      }
+    }
+    if (data[0][(1).toString()] == turnData &&
+        data[1][(2).toString()] == turnData &&
+        data[2][(3).toString()] == turnData) {
+      log("win3");
+      win = true;
+    } else if (data[2][(1).toString()] == turnData &&
+        data[1][(2).toString()] == turnData &&
+        data[0][(3).toString()] == turnData) {
+      log("win4");
+      win = true;
+    }
+    if (win) {
+      await db
+          .collection("gamesessions")
+          .doc(gameData.id)
+          .update({"Finished": true, "Winner": widget.data["Nickname"]});
+    }
+  }
+
+  void waiter() async {
+    setState(() {
+      _waiter = false;
+    });
+    await Future.delayed(const Duration(milliseconds: 500));
+    setState(() {
+      _waiter = true;
+    });
   }
 
   @override
@@ -179,27 +324,274 @@ class _TictactoeState extends State<Tictactoe> {
                     snapshot.data!.data() == null ||
                     !snapshot.hasData) {
                   // IF GAME IS NOT EVEN SET UP #ERROR
-                  gameSetup();
+                  //gameSetup();
                   return MyAnimatedGradient(
                     child: Center(
-                      child: Text("Loading",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                color: Colors.white,
-                              )),
+                      child: GestureDetector(
+                        onTap: () {
+                          clickSound();
+                          gameSetup();
+                        },
+                        child: Text("Setup",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall!
+                                .copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                )),
+                      ),
                     ),
                   );
                 } else if (snapshot.data!.data()!["online"]) {
                   // IF GAME IS ONLINE
                   if (snapshot.data!.data()!["waitingOpponent"]) {
+                    // IF PERSON IS WAITING FOR OPPONENT
                     log(snapshot.data!.data()!["opponent"]);
-                    return Text("data");
+                    return MyAnimatedGradient(
+                        child: Center(
+                            child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "Waiting for an opponent",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            clickSound();
+                            startNewGame();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).cardColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text("Invite another person",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: Colors.blue,
+                                    )),
+                          ),
+                        ),
+                      ],
+                    )));
                   } else {
-                    log("wtf");
+                    // IF GAME IS ALL SET
+                    return MyAnimatedGradient(
+                        child: StreamBuilder(
+                      stream: db
+                          .collection("gamesessions")
+                          .doc(snapshot.data!.data()!["gameSession"])
+                          .snapshots(),
+                      builder: (context, gameSnapshot) {
+                        List lst = [];
+                        try {
+                          lst = gameSnapshot.data!.data()!["Data"];
+                        } catch (e) {
+                          return const Center(child: Text("LOADING"));
+                        }
+                        bool finished = gameSnapshot.data!.data()!["Finished"];
+                        String winner = gameSnapshot.data!.data()!["Winner"];
+                        String turn = gameSnapshot.data!.data()!["Turn"];
+                        String host = gameSnapshot.data!.data()!["Host"];
+                        String opponent =
+                            gameSnapshot.data!.data()!["Opponent"];
+
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (finished) ...[
+                                Text(
+                                  "You ${winner == widget.data["Nickname"] ? "Won" : "Lost"}",
+                                  style:
+                                      Theme.of(context).textTheme.headlineLarge,
+                                )
+                              ] else if (turn == widget.data["Nickname"]) ...[
+                                Text(
+                                  "Your turn",
+                                  style:
+                                      Theme.of(context).textTheme.headlineLarge,
+                                )
+                              ] else ...[
+                                Text(
+                                  "",
+                                  style:
+                                      Theme.of(context).textTheme.headlineLarge,
+                                )
+                              ],
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Theme.of(context).canvasColor),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    for (int i = 0; i < 3; i++) ...[
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          for (int j = 1; j <= 3; j++) ...[
+                                            GestureDetector(
+                                              onTap: () async {
+                                                if (!_waiter) {
+                                                  Utils.showSnackBar("Wait");
+                                                  return;
+                                                }
+                                                waiter();
+                                                clickSound();
+                                                if (finished) {
+                                                  Utils.showSnackBar(
+                                                      "Game already finished");
+                                                  return;
+                                                }
+                                                if (lst[i][j.toString()] !=
+                                                    "") {
+                                                  Utils.showSnackBar("Invalid");
+                                                  return;
+                                                }
+                                                if (turn ==
+                                                    widget.data["Nickname"]) {
+                                                  clickSound();
+                                                  lst[i][j.toString()] =
+                                                      gameSnapshot.data!
+                                                          .data()!["TurnData"];
+                                                  String turnData = "";
+                                                  String nextTurn = "";
+                                                  if (gameSnapshot.data!
+                                                              .data()![
+                                                          "TurnData"] ==
+                                                      "X") {
+                                                    turnData = "O";
+                                                  } else {
+                                                    turnData = "X";
+                                                  }
+
+                                                  if (turn == host) {
+                                                    nextTurn = opponent;
+                                                  } else {
+                                                    nextTurn = host;
+                                                  }
+                                                  await db
+                                                      .collection(
+                                                          "gamesessions")
+                                                      .doc(snapshot.data!
+                                                              .data()![
+                                                          "gameSession"])
+                                                      .update({
+                                                    "Data": lst,
+                                                    "TurnData": turnData,
+                                                    "Turn": nextTurn
+                                                  });
+                                                  winCheck(
+                                                      gameSnapshot.data!,
+                                                      i,
+                                                      j,
+                                                      gameSnapshot.data!
+                                                          .data()!["TurnData"]);
+                                                } else {
+                                                  Utils.showSnackBar(
+                                                      "Not your turn");
+                                                }
+                                              },
+                                              child: Container(
+                                                  decoration: BoxDecoration(
+                                                      border: Border.all()),
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      4,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      4,
+                                                  child: Center(
+                                                      child: Text(
+                                                    lst[i][j.toString()],
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleLarge,
+                                                  ))),
+                                            ),
+                                          ],
+                                        ],
+                                      )
+                                    ]
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              if (!finished) ...[
+                                GestureDetector(
+                                  onTap: () {
+                                    clickSound();
+                                    surrender(gameSnapshot);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text("Surrender",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall!
+                                            .copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: Colors.blue,
+                                            )),
+                                  ),
+                                ),
+                              ] else ...[
+                                GestureDetector(
+                                  onTap: () {
+                                    clickSound();
+                                    startNewGame();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text("Start new game",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineSmall!
+                                            .copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                              color: Colors.blue,
+                                            )),
+                                  ),
+                                )
+                              ]
+                            ],
+                          ),
+                        );
+                      },
+                    ));
                   }
                 } else if (!snapshot.data!.data()!["online"]) {
                   log("fsafsafsaf");
@@ -229,8 +621,24 @@ class _TictactoeState extends State<Tictactoe> {
                     )),
                   );
                 }
-                return Column(
-                  children: [Text(snapshot.data!["online"].toString())],
+                return MyAnimatedGradient(
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        clickSound();
+                        gameSetup();
+                      },
+                      child: Text("Setup",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                color: Colors.white,
+                              )),
+                    ),
+                  ),
                 );
               })),
     );

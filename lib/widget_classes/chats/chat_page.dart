@@ -819,7 +819,11 @@ class _ChatPageState extends State<ChatPage> {
                 )),
           ],
         ),
-        body: chatWidgets(),
+        body: GestureDetector(
+            onDoubleTap: () {
+              log("uigsdfbhuivsd");
+            },
+            child: chatWidgets()),
         /*floatingActionButton:
             FloatingActionButton(onPressed: floatingActionButtonClick),*/
       ),

@@ -466,6 +466,38 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                       clickSound();
                       log(widget.doc["GameSession"]);
                       log(widget.contact + widget.user);
+                      var gameSession = await db
+                          .collection("gamesessions")
+                          .doc(widget.doc["GameSession"])
+                          .get();
+                      if (!gameSession.data()!["Started"]) {
+                        Utils.showSnackBar("Game is starting");
+                        await db
+                            .collection("gamesessions")
+                            .doc(widget.doc["GameSession"])
+                            .update({"Started": true});
+                        await db
+                            .collection("nicknames")
+                            .doc(widget.user)
+                            .collection("games")
+                            .doc(widget.doc["GameType"])
+                            .update({
+                          "waitingOpponent": false,
+                          "gameSession": widget.doc["GameSession"],
+                          "online": true,
+                          "opponent": widget.contact
+                        });
+                        await db
+                            .collection("nicknames")
+                            .doc(widget.contact)
+                            .collection("games")
+                            .doc(widget.doc["GameType"])
+                            .update({"waitingOpponent": false});
+                        await Future.delayed(const Duration(seconds: 2));
+                        Utils.showSnackBar("Navigate to game menu to play");
+                      } else {
+                        Utils.showSnackBar("Invalid");
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),
@@ -482,6 +514,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                     onTap: () async {
                       log(widget.doc["GameSession"]);
                       log(widget.contact + widget.user);
+                      Utils.showSnackBar("Invalid");
                     },
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(18, 6, 18, 6),

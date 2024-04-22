@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pavli_text/start.dart' as start;
 import 'package:pavli_text/testing.dart';
@@ -91,6 +92,7 @@ class _MyAppState extends State<MyApp> {
       Navigator.of(context).pushNamed("/test-page");
     });
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   }
 
   @override
