@@ -1,6 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +10,7 @@ import 'package:date_time/date_time.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:pavli_text/widget_classes/game_widgets/my_animated_gradient.dart';
 
@@ -102,7 +105,7 @@ class _TictactoeState extends State<Tictactoe> {
       "LastChat": text,
       "LastChatSender": widget.data["Nickname"]
     });
-
+    pushNotification(text, opponent);
     //viewChatEdit1();
   }
 
@@ -117,10 +120,14 @@ class _TictactoeState extends State<Tictactoe> {
         .doc("TicTacToe")
         .get()
         .then((value) async {
-      await db
-          .collection("gamesessions")
-          .doc(value.data()!["gameSession"])
-          .update({"Started": true});
+      try {
+        await db
+            .collection("gamesessions")
+            .doc(value.data()!["gameSession"])
+            .update({"Started": true});
+      } catch (e) {
+        log(e.toString());
+      }
     });
     DocumentReference<Map<String, dynamic>> sessionDoc =
         await db.collection("gamesessions").add({
@@ -259,6 +266,48 @@ class _TictactoeState extends State<Tictactoe> {
           .collection("gamesessions")
           .doc(gameData.id)
           .update({"Finished": true, "Winner": widget.data["Nickname"]});
+    }
+  }
+
+  void pushNotification(String message, String opponent) async {
+    log("______________Notification sent_______________");
+    List<dynamic> tokenList = [];
+
+    await db.collection("nicknames").doc(opponent).get().then((value) {
+      try {
+        tokenList = value.data()!["tokenList"];
+      } catch (e) {
+        tokenList = [];
+      }
+    });
+    /*mFunc.httpsCallable("sendNotification").call({
+          "tokens": tokenList,
+          "title": widget.data["Nickname"],
+          "body": message
+        }).then((value) {
+          log(value.data.toString());
+        });*/
+    for (String tokenL in tokenList) {
+      try {
+        Map<String, Object> body;
+
+        body = {
+          "to": tokenL,
+          "notification": {"title": widget.data["Nickname"], "body": message}
+        };
+
+        // ignore: unused_local_variabledd
+        var res = await post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
+            body: jsonEncode(body),
+            headers: {
+              HttpHeaders.contentTypeHeader: "application/json",
+              HttpHeaders.authorizationHeader:
+                  "key=AAAAWCL3XpU:APA91bFxP_DGH1VXWWteQB9ov-KBLF3xzGmklUhlgQCMrw2H3laoTNAIeke6ccpPvxw7bQD9gYzTlzyy__55RKfjk6TuS3F8TnHwSwB_zJgaMhgUBmGA_5uSLkp8oAywzJd4Z74e6Yhk"
+            });
+        log("Notification response: ${res.body}");
+      } catch (e) {
+        log("Nottification error: $e");
+      }
     }
   }
 
@@ -513,7 +562,10 @@ class _TictactoeState extends State<Tictactoe> {
                                               },
                                               child: Container(
                                                   decoration: BoxDecoration(
-                                                      border: Border.all()),
+                                                      border: Border.all(),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              1.5)),
                                                   height: MediaQuery.of(context)
                                                           .size
                                                           .width /

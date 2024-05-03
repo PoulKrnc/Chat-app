@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
      xmlns:tools="http://schemas.android.com/tools"
      package="com.example.myapp">
+
+    <uses-sdk android:minSdkVersion="4"/>
     <application
         android:label="pavli_text"
         android:name="${applicationName}"
@@ -46,11 +48,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>
-
-    <!--
-      Permission to use here depends on the value you picked for foregroundServiceType - see the Android documentation.
-      Eg, if you picked 'location', use 'android.permission.FOREGROUND_SERVICE_LOCATION'
-    -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_..." />
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility?hl=en and
