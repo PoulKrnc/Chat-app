@@ -8,7 +8,7 @@ import 'package:intl/intl.dart';
 
 class EditProfile extends StatefulWidget {
   final Map<String, dynamic> data;
-  const EditProfile({Key? key, required this.data}) : super(key: key);
+  const EditProfile({super.key, required this.data});
 
   @override
   _EditProfileState createState() => _EditProfileState();
@@ -122,15 +122,10 @@ class _EditProfileState extends State<EditProfile> {
                         padding:
                             const EdgeInsetsDirectional.fromSTEB(15, 0, 15, 0),
                         decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.blue),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: const [
-                              BoxShadow(
-                                  offset: Offset(5, 5),
-                                  blurRadius: 10,
-                                  color: Colors.grey)
-                            ]),
+                          color: Theme.of(context).cardColor,
+                          border: Border.all(color: Colors.blue),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         child: Center(
                             child: IntrinsicWidth(
                           child: TextFormField(
@@ -176,15 +171,10 @@ class _EditProfileState extends State<EditProfile> {
                         padding:
                             const EdgeInsetsDirectional.fromSTEB(15, 0, 15, 0),
                         decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.blue),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: const [
-                              BoxShadow(
-                                  offset: Offset(5, 5),
-                                  blurRadius: 10,
-                                  color: Colors.grey)
-                            ]),
+                          color: Theme.of(context).cardColor,
+                          border: Border.all(color: Colors.blue),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         child: Center(
                           child: DropdownButton(
                             borderRadius: BorderRadius.circular(10),
@@ -213,15 +203,10 @@ class _EditProfileState extends State<EditProfile> {
                     padding:
                         const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.blue),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                              offset: Offset(5, 5),
-                              blurRadius: 10,
-                              color: Colors.grey)
-                        ]),
+                      color: Theme.of(context).cardColor,
+                      border: Border.all(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     child: Center(
                       child: Row(
                         children: [
@@ -251,28 +236,23 @@ class _EditProfileState extends State<EditProfile> {
                     padding:
                         const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.blue),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                              offset: Offset(5, 5),
-                              blurRadius: 10,
-                              color: Colors.grey)
-                        ]),
-                    child: Center(
+                      color: Theme.of(context).cardColor,
+                      border: Border.all(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Center(
                       child: Row(
                         children: [
-                          const Spacer(),
+                          Spacer(),
                           Text(
                             "Update",
                             style: TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.grey[800]),
+                                color: Colors.blue),
                           ),
-                          const Icon(Icons.arrow_forward_outlined),
-                          const Spacer()
+                          Icon(Icons.arrow_forward_outlined),
+                          Spacer()
                         ],
                       ),
                     )),

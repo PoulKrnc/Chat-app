@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:pavli_text/utils/utils.dart';
-import 'package:pavli_text/widget_classes/game_widgets/tictactoe.dart';
 
 class GameItem extends StatefulWidget {
   final Widget page;
   final String title;
   final String img;
   final Map<String, dynamic> data;
+  final String text;
   const GameItem(
-      {Key? key,
+      {super.key,
       required this.page,
       required this.title,
       required this.img,
-      required this.data})
-      : super(key: key);
+      required this.data,
+      required this.text});
 
   @override
   _GameItemState createState() => _GameItemState();
@@ -31,8 +31,8 @@ class _GameItemState extends State<GameItem> {
         ).then((value) => setState(() {}));
       },
       child: Container(
-        margin: EdgeInsets.all(6),
-        padding: EdgeInsets.fromLTRB(15, 6, 15, 6),
+        margin: const EdgeInsets.all(6),
+        padding: const EdgeInsets.fromLTRB(15, 6, 15, 6),
         decoration: BoxDecoration(
             border: Border.all(color: Colors.blue, width: 1),
             borderRadius: BorderRadius.circular(7)),
@@ -45,6 +45,7 @@ class _GameItemState extends State<GameItem> {
                 Hero(
                   tag: widget.title,
                   child: Container(
+                    decoration: const BoxDecoration(),
                     child: Text(widget.title,
                         style:
                             Theme.of(context).textTheme.headlineSmall!.copyWith(
@@ -54,16 +55,17 @@ class _GameItemState extends State<GameItem> {
                   ),
                 ),
                 Text(
-                  "Play ${widget.title} with friends",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+                  widget.text,
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w400),
                 ),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             Hero(
               tag: "${widget.title}1",
               child: Container(
-                margin: EdgeInsets.all(3),
+                margin: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(6)),

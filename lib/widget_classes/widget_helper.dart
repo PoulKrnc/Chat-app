@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:pavli_text/utils/utils.dart';
+import 'package:pavli_text/widget_classes/contact_widget.dart';
 
 class ContactIconSearch extends StatefulWidget {
   const ContactIconSearch({super.key, required this.icon, required this.data});
@@ -47,6 +48,184 @@ class _ContactIconSearchState extends State<ContactIconSearch> {
             ),
             widget.icon,
             size: 30,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BlockedContacts extends StatefulWidget {
+  const BlockedContacts({super.key, required this.icon, required this.data});
+  final Map<String, dynamic> data;
+  final IconData icon;
+
+  @override
+  _BlockedContactsState createState() => _BlockedContactsState();
+}
+
+class _BlockedContactsState extends State<BlockedContacts> {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return BlockedContactsPage(
+            data: widget.data,
+          );
+        }));
+        //Navigator.of(context).push(createRoute());
+        SystemSound.play(SystemSoundType.click);
+      },
+      child: Hero(
+        tag: "blockedIcon",
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+              color: Colors.blue.shade400,
+              borderRadius: BorderRadius.circular(100)),
+          child: Icon(
+            color: isLightMode(
+              context,
+              lWidget: Colors.grey[200],
+              dWidget: Colors.grey[800],
+            ),
+            widget.icon,
+            size: 30,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BlockedContactsPage extends StatefulWidget {
+  const BlockedContactsPage({super.key, required this.data});
+  final Map<String, dynamic> data;
+
+  @override
+  _BlockedContactsPageState createState() => _BlockedContactsPageState();
+}
+
+class _BlockedContactsPageState extends State<BlockedContactsPage> {
+  String title = "";
+  final user = FirebaseAuth.instance.currentUser!;
+  var db = FirebaseFirestore.instance;
+
+  void waiter() async {
+    String str = "Blocked contacts";
+    for (int i = 0; i < str.length; i++) {
+      await Future.delayed(Duration(milliseconds: 10));
+      setState(() {
+        title += str[i];
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    waiter();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Hero(
+          tag: "blockedIcon",
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                    color: Colors.blue.shade400,
+                    borderRadius: BorderRadius.circular(100)),
+                child: Icon(
+                  color: isLightMode(
+                    context,
+                    lWidget: Colors.grey[200],
+                    dWidget: Colors.grey[800],
+                  ),
+                  Icons.person_off,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              Text(
+                title,
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge!
+                    .copyWith(color: Colors.white),
+              )
+            ],
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height - 220,
+                margin: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
+                padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
+                child: StreamBuilder<QuerySnapshot>(
+                    stream: db
+                        .collection("nicknames")
+                        .doc(widget.data["Nickname"])
+                        .collection("contacts")
+                        .orderBy("LastChatDate", descending: true)
+                        .snapshots(),
+                    builder: (context, snapshot1) {
+                      if (!snapshot1.hasData) {
+                        return const Column(
+                          children: [
+                            Spacer(),
+                            Text(
+                              "Your contact list is empty for now",
+                              style: TextStyle(fontSize: 17),
+                            ),
+                            Spacer()
+                          ],
+                        );
+                      }
+                      // ignore: prefer_is_empty
+                      if (snapshot1.data!.docs.length == 0) {
+                        return const Row(
+                          children: [
+                            Spacer(),
+                            Text("Your contacts are empty for now."),
+                            Spacer()
+                          ],
+                        );
+                      }
+                      return ListView.builder(
+                          itemCount: snapshot1.data!.docs.length,
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot doc = snapshot1.data!.docs[index];
+                            try {
+                              doc["LastChatDate"].toString();
+                            } catch (e) {
+                              log(e.toString());
+                              return Text("No data");
+                            }
+                            if (!doc["Blocked"]) {
+                              return Container();
+                            }
+                            return ContactWidget(
+                              doc: doc,
+                              data: widget.data,
+                            );
+                          });
+                    }),
+              )
+            ],
           ),
         ),
       ),

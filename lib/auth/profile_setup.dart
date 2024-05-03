@@ -132,15 +132,10 @@ class _ProfileSetupState extends State<ProfileSetup> {
                   margin: const EdgeInsetsDirectional.fromSTEB(25, 5, 25, 5),
                   padding: const EdgeInsetsDirectional.fromSTEB(15, 0, 15, 0),
                   decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: const [
-                        BoxShadow(
-                            offset: Offset(5, 5),
-                            blurRadius: 10,
-                            color: Colors.grey)
-                      ]),
+                    color: Theme.of(context).cardColor,
+                    border: Border.all(color: Colors.blue),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   child: TextFormField(
                     decoration: const InputDecoration(
                         border: InputBorder.none, hintText: "Nickname"),
@@ -153,15 +148,10 @@ class _ProfileSetupState extends State<ProfileSetup> {
                     margin: const EdgeInsetsDirectional.fromSTEB(25, 5, 25, 5),
                     padding: const EdgeInsetsDirectional.fromSTEB(15, 0, 15, 0),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.blue),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
-                          BoxShadow(
-                              offset: Offset(5, 5),
-                              blurRadius: 10,
-                              color: Colors.grey)
-                        ]),
+                      color: Theme.of(context).cardColor,
+                      border: Border.all(color: Colors.blue),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     child: Center(
                         child: IntrinsicWidth(
                       child: TextFormField(
@@ -204,15 +194,10 @@ class _ProfileSetupState extends State<ProfileSetup> {
                       padding:
                           const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [
-                            BoxShadow(
-                                offset: Offset(5, 5),
-                                blurRadius: 10,
-                                color: Colors.grey)
-                          ]),
+                        color: Theme.of(context).cardColor,
+                        border: Border.all(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Center(
                         child: Row(
                           children: [
@@ -243,15 +228,10 @@ class _ProfileSetupState extends State<ProfileSetup> {
                       padding:
                           const EdgeInsetsDirectional.fromSTEB(10, 10, 10, 10),
                       decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: const [
-                            BoxShadow(
-                                offset: Offset(5, 5),
-                                blurRadius: 10,
-                                color: Colors.grey)
-                          ]),
+                        color: Theme.of(context).cardColor,
+                        border: Border.all(color: Colors.blue),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Center(
                         child: Row(
                           children: [

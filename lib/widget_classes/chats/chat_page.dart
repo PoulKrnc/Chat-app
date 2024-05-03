@@ -965,62 +965,67 @@ class _ChatPageState extends State<ChatPage> {
                                       context: context,
                                       builder: (context) {
                                         return Center(
-                                          child: Container(
-                                              child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              ChatWidgetStyle1(
-                                                chatSticker: chatSticker,
-                                                previousSender: previousSender,
-                                                doc: doc,
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  replyClick(doc);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: StyleDialogItem(
-                                                    child: "Reply"),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  copyClick(doc);
-                                                  Navigator.pop(context);
-                                                },
-                                                child: StyleDialogItem(
-                                                    child: "Copy"),
-                                              ),
-                                              if (doc["Sender"] ==
-                                                      widget.data["Nickname"] ||
-                                                  widget.data["Nickname"] ==
-                                                      "Poul") ...[
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    editChat(doc);
-                                                  },
-                                                  child: StyleDialogItem(
-                                                      child: "Edit"),
+                                          child: SingleChildScrollView(
+                                            child: Container(
+                                                child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                ChatWidgetStyle1(
+                                                  chatSticker: chatSticker,
+                                                  previousSender:
+                                                      previousSender,
+                                                  doc: doc,
                                                 ),
-                                              ],
-                                              if (doc["Sender"] ==
-                                                      widget.data["Nickname"] ||
-                                                  widget.data["Nickname"] ==
-                                                      "Poul") ...[
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
                                                 GestureDetector(
                                                   onTap: () {
-                                                    deleteChat(doc);
+                                                    replyClick(doc);
                                                     Navigator.pop(context);
                                                   },
                                                   child: StyleDialogItem(
-                                                      child: "Delete"),
+                                                      child: "Reply"),
                                                 ),
-                                              ]
-                                            ],
-                                          )),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    copyClick(doc);
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: StyleDialogItem(
+                                                      child: "Copy"),
+                                                ),
+                                                if (doc["Sender"] ==
+                                                        widget
+                                                            .data["Nickname"] ||
+                                                    widget.data["Nickname"] ==
+                                                        "Poul") ...[
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      editChat(doc);
+                                                    },
+                                                    child: StyleDialogItem(
+                                                        child: "Edit"),
+                                                  ),
+                                                ],
+                                                if (doc["Sender"] ==
+                                                        widget
+                                                            .data["Nickname"] ||
+                                                    widget.data["Nickname"] ==
+                                                        "Poul") ...[
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      deleteChat(doc);
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: StyleDialogItem(
+                                                        child: "Delete"),
+                                                  ),
+                                                ]
+                                              ],
+                                            )),
+                                          ),
                                         );
                                       });
                                 },
@@ -1251,6 +1256,18 @@ class _ChatPageState extends State<ChatPage> {
                                     color: Colors.red),
                               ),
                             ),
+                          ),
+                          GestureDetector(
+                            onTap: removeFromContacts,
+                            child: Container(
+                              margin: const EdgeInsets.all(20),
+                              child: const Text(
+                                "Remove contact",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                           )
                         ] else if (blocked &&
                             blockedBy == widget.data["Nickname"]) ...[
@@ -1279,18 +1296,6 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                           )
                         ],
-                        GestureDetector(
-                          onTap: removeFromContacts,
-                          child: Container(
-                            margin: const EdgeInsets.all(20),
-                            child: const Text(
-                              "Remove contact",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        )
                       ],
                     ),
                   )));

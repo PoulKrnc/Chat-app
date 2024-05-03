@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pavli_text/widget_classes/game_widgets/chess.dart';
 import 'package:pavli_text/widget_classes/game_widgets/game_item.dart';
 import 'package:pavli_text/widget_classes/game_widgets/tictactoe.dart';
 
@@ -28,6 +29,16 @@ class _GamePageState extends State<GamePage> {
                   title: "TicTacToe",
                   img: "assets/TICTACTOE.png",
                   data: widget.data,
+                  text: "Play TicTacToe with friends",
+                ),
+                GameItem(
+                  page: const Chess(
+                      //data: widget.data,
+                      ),
+                  title: "Chess",
+                  img: "assets/CHESS.png",
+                  data: widget.data,
+                  text: "Coming soon",
                 )
               ],
             )),

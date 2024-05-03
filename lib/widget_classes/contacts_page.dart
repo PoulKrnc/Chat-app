@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings, library_private_types_in_public_api, prefer_typing_uninitialized_variables, prefer_final_fields, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables
 
+import 'dart:developer';
+
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:pavli_text/widget_classes/contact_widget.dart';
@@ -44,10 +46,15 @@ class _ContactsPageState extends State<ContactsPage> {
         title: Container(
           child: Row(
             children: [
+              const Spacer(),
               ContactIconSearch(
                 icon: Icons.search,
                 data: widget.data,
-              )
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              BlockedContacts(icon: Icons.person_off, data: widget.data)
             ],
           ),
         ),
@@ -98,11 +105,11 @@ class _ContactsPageState extends State<ContactsPage> {
                             try {
                               doc["LastChatDate"].toString();
                             } catch (e) {
-                              db
-                                  .collection("nicknames")
-                                  .doc(widget.data["Nickname"])
-                                  .collection("contacts")
-                                  .doc(doc.id);
+                              log(e.toString());
+                              return Text("No data");
+                            }
+                            if (doc["Blocked"]) {
+                              return Container();
                             }
                             return ContactWidget(
                               doc: doc,
@@ -299,10 +306,10 @@ class _ContactsPageState extends State<ContactsPage> {
       "ReplyText": "",
       "ReplySender": "",
       "ViewedBy": [],
-      "LastChatDate": date1,
+      /*"LastChatDate": date1,
       "LastChatSender": "App",
       "LastChat":
-          "This is a start of conversation between ${widget.data["Nickname"]} and $personNickname"
+          "This is a start of conversation between ${widget.data["Nickname"]} and $personNickname"*/
     });
   }
 }
