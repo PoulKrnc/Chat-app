@@ -75,7 +75,7 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
 
   Future<void> downloadNotification() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+        AndroidInitializationSettings('ic_launcher1');
     final InitializationSettings initializationSettings =
         const InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);

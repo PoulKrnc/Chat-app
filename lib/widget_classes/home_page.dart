@@ -12,11 +12,10 @@ class HomePage extends StatefulWidget {
   final Map<String, dynamic> setupsList;
   final int index;
   const HomePage(
-      {Key? key,
+      {super.key,
       required this.data,
       required this.setupsList,
-      required this.index})
-      : super(key: key);
+      required this.index});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -88,24 +87,6 @@ class _HomePageState extends State<HomePage> {
           Shadow(offset: Offset(3, 3), blurRadius: 1.5, color: Colors.black54)
         ]),
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget page() {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              Text(
-                "HOME",
-                style: TextStyle(fontSize: 23),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

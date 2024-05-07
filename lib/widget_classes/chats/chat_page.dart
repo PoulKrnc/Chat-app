@@ -59,7 +59,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> downloadNotification() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+        AndroidInitializationSettings('ic_launcher1');
     final InitializationSettings initializationSettings =
         InitializationSettings(android: initializationSettingsAndroid);
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
@@ -997,10 +997,8 @@ class _ChatPageState extends State<ChatPage> {
                                                       child: "Copy"),
                                                 ),
                                                 if (doc["Sender"] ==
-                                                        widget
-                                                            .data["Nickname"] ||
-                                                    widget.data["Nickname"] ==
-                                                        "Poul") ...[
+                                                    widget
+                                                        .data["Nickname"]) ...[
                                                   GestureDetector(
                                                     onTap: () {
                                                       editChat(doc);
@@ -1010,10 +1008,8 @@ class _ChatPageState extends State<ChatPage> {
                                                   ),
                                                 ],
                                                 if (doc["Sender"] ==
-                                                        widget
-                                                            .data["Nickname"] ||
-                                                    widget.data["Nickname"] ==
-                                                        "Poul") ...[
+                                                    widget
+                                                        .data["Nickname"]) ...[
                                                   GestureDetector(
                                                     onTap: () {
                                                       deleteChat(doc);
