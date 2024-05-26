@@ -1,4 +1,4 @@
-// ignore_for_file: sort_child_properties_last
+import 'dart:developer';
 
 import 'package:pavli_text/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,42 +14,28 @@ class LogInPage extends StatefulWidget {
 }
 
 class _LogInPageState extends State<LogInPage> {
-  //
-  // widget called from _auth.dart_
-  // responsibile for showing widgets required for login
-  // widgets:
-  // - text: "Log In"
-  // - text form field: "Email"
-  // - text form field: "Password"
-  // - button: "Sign Up":
-  //   - _VoidCallback showLogInPage_
-  // - button: "Log In"
-  //   - calls logIn function
-  //
-
-  // text controlers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisible = true;
   final formKey = GlobalKey<FormState>();
 
-  // checks email and password entered and does its thing
-  Future logIn() async {
+  Future login() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim());
     } on FirebaseAuthException catch (e) {
-      printY(e.code);
+      log(e.code.toString());
       if (e.code == 'user-not-found') {
-        Utils.showSnackBar('Provided email does not exist in our database.');
+        Utils.showSnackBar('User not found.');
       } else if (e.code == 'wrong-password') {
-        Utils.showSnackBar('Wrong password provided for that user.');
+        Utils.showSnackBar('Wrong password.');
       } else if (e.code == 'invalid-email') {
-        Utils.showSnackBar('Provided email is invalid.');
+        Utils.showSnackBar('Invalid email.');
+      } else if (e.code == 'too-many-requests') {
+        Utils.showSnackBar('Too many requests.');
       } else {
         Utils.showSnackBar('Something went wrong.');
-        //log(e.toString());
       }
     }
   }
@@ -154,7 +140,7 @@ class _LogInPageState extends State<LogInPage> {
                       children: [
                         const Spacer(),
                         GestureDetector(
-                          onTap: logIn,
+                          onTap: login,
                           child: Container(
                               margin: const EdgeInsets.all(5),
                               padding: const EdgeInsets.all(10),
@@ -162,9 +148,8 @@ class _LogInPageState extends State<LogInPage> {
                                   color: Colors.white,
                                   border: Border.all(color: Colors.blue),
                                   borderRadius: BorderRadius.circular(20),
-                                  // ignore: prefer_const_literals_to_create_immutables
-                                  boxShadow: [
-                                    const BoxShadow(
+                                  boxShadow: const [
+                                    BoxShadow(
                                         offset: Offset(2, 2),
                                         blurRadius: 5,
                                         color: Colors.grey)
@@ -172,8 +157,6 @@ class _LogInPageState extends State<LogInPage> {
                               child: Center(
                                 child: Text(
                                   "Log In",
-                                  // ignore: deprecated_member_use
-
                                   style: TextStyle(
                                       fontSize: 21,
                                       fontWeight: FontWeight.bold,

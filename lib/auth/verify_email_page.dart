@@ -19,6 +19,14 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
   Timer? timer;
 
   @override
+  void dispose() {
+    timer?.cancel();
+    // ignore: todo
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     isEmailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
@@ -31,14 +39,6 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         (_) => checkEmailVerified(),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    // ignore: todo
-    // TODO: implement dispose
-    super.dispose();
   }
 
   Future checkEmailVerified() async {
@@ -95,7 +95,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       size: 32,
                     ),
                     label: const Text(
-                      "Resent Email",
+                      "Resend Email",
                       style: TextStyle(fontSize: 24),
                     ),
                     onPressed: sendVerificationEmail),

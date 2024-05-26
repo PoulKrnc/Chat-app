@@ -13,14 +13,6 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  //
-  // this widget resets password of entered email
-  // it sends email for reseting password
-  // widgets:
-  // - text form field "Email"
-  // - button: Reset Password
-  //
-
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
 
@@ -46,9 +38,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 color: Colors.white,
                 border: Border.all(color: Colors.blue),
                 borderRadius: BorderRadius.circular(20),
-                // ignore: prefer_const_literals_to_create_immutables
-                boxShadow: [
-                  const BoxShadow(
+                boxShadow: const [
+                  BoxShadow(
                       offset: Offset(5, 5), blurRadius: 10, color: Colors.grey)
                 ]),
             child: TextFormField(
@@ -80,16 +71,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       color: Colors.blue,
                       border: Border.all(color: Colors.blue),
                       borderRadius: BorderRadius.circular(20),
-                      // ignore: prefer_const_literals_to_create_immutables
-                      boxShadow: [
-                        const BoxShadow(
+                      boxShadow: const [
+                        BoxShadow(
                             offset: Offset(5, 5),
                             blurRadius: 10,
                             color: Colors.grey)
                       ]),
                   child: const Center(
                     child: Row(
-                      // ignore: prefer_const_literals_to_create_immutables
                       children: [
                         Spacer(),
                         Icon(
@@ -97,7 +86,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           color: Colors.white,
                         ),
                         Text(
-                          " Reset Password",
+                          "Reset Password",
                           // ignore: deprecated_member_use
                           textScaleFactor: 1.4,
                           style: TextStyle(
@@ -115,7 +104,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     );
   }
 
-  // this function sends entered email a reset password email.
   Future resetPassword() async {
     showDialog(
       context: context,
@@ -124,7 +112,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         child: CircularProgressIndicator(),
       ),
     );
-
     try {
       await FirebaseAuth.instance
           .sendPasswordResetEmail(email: emailController.text.trim());

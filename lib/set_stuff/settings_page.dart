@@ -11,7 +11,6 @@ class SettingsPage extends StatefulWidget {
   final Map<String, dynamic> data;
 
   @override
-  // ignore: library_private_types_in_public_api
   _SettingsPageState createState() => _SettingsPageState();
 }
 
@@ -26,27 +25,23 @@ class _SettingsPageState extends State<SettingsPage> {
           .collection("nicknames")
           .doc(widget.data["Nickname"])
           .update({"ScaleFactor": scaleFactor});
-      await Future.delayed(const Duration(seconds: 1));
+      await Future.delayed(const Duration(milliseconds: 300));
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    super.dispose();
     db
         .collection("nicknames")
         .doc(widget.data["Nickname"])
         .update({"ScaleFactor": scaleFactor});
-    /*setState(() {
-      run = false;
-    });*/
-    super.dispose();
+    log(scaleFactor.toString());
   }
 
   @override
   void initState() {
-    // TODO: implement initState
-    runner();
+    //runner();
     scaleFactor = widget.data["ScaleFactor"] == null
         ? 1.0
         : 1.0 * widget.data["ScaleFactor"];
@@ -118,7 +113,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                 ? 1.0
                                 : 1.0 * widget.data["ScaleFactor"],
                             onChange: (v) {
-                              scaleFactor = roundDouble(v, 2);
+                              setState(() {
+                                scaleFactor = roundDouble(v, 2);
+                              });
                             }),
                       ],
                     ),
@@ -127,23 +124,17 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          const Positioned(
+          /*const Positioned(
               child: Align(
             alignment: Alignment.bottomCenter,
             child: Text("App v1.7"),
-          ))
+          ))*/
         ],
       )),
     );
   }
 }
 
-//
-// Simple Slider
-// Choose min, max.
-// State changes is inside the onChange method.
-// _currentSliderValue is the slider value you will use.
-//
 class SliderFb1 extends StatefulWidget {
   final double min;
   final double max;
@@ -162,8 +153,7 @@ class SliderFb1 extends StatefulWidget {
       this.primaryColor = Colors.indigo,
       this.showMinMaxText = true,
       this.minMaxTextStyle = const TextStyle(fontSize: 14),
-      Key? key})
-      : super(key: key);
+      super.key});
 
   @override
   _SliderFb1State createState() => _SliderFb1State();
@@ -217,7 +207,6 @@ class _SliderFb1State extends State<SliderFb1> {
   }
 }
 
-// Credits to @Ankit Chowdhury
 class CustomSliderThumbCircle extends SliderComponentShape {
   final double thumbRadius;
   final double min;
@@ -259,7 +248,7 @@ class CustomSliderThumbCircle extends SliderComponentShape {
       style: TextStyle(
         fontSize: thumbRadius * .8,
         fontWeight: FontWeight.w700,
-        color: sliderTheme.thumbColor, //Text Color of Value on Thumb
+        color: sliderTheme.thumbColor,
       ),
       text: getValue(value),
     );

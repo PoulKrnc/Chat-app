@@ -121,32 +121,3 @@ class _StartPageState extends State<StartPage> {
     );
   }
 }
-
-class User {
-  String nickname;
-  User({required this.nickname}) : super();
-  var db = FirebaseFirestore.instance;
-  String Date_born = "";
-  String Mail = "";
-  String Nickname = "";
-  String ProfilePicUrl = "";
-  String token = "";
-  List tokenList = [];
-
-  void initializeUser() {
-    db.collection("nicknames").doc(nickname).get().then((value) {
-      Map<String, dynamic> map = value.data()!;
-      Date_born = map["Date_born"];
-      Mail = map["Mail"];
-      Nickname = map["Nickname"];
-      ProfilePicUrl = map["ProfilePicUrl"];
-      token = map["token"];
-      tokenList = map["tokenList"];
-    });
-  }
-
-  @override
-  String toString() {
-    return "$Date_born: $Mail: $Nickname: $ProfilePicUrl: $token: ";
-  }
-}

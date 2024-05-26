@@ -91,6 +91,7 @@ class _MyAppState extends State<MyApp> {
       dark: ThemeData.dark(useMaterial3: false),
       initial: widget.savedThemeMode ?? AdaptiveThemeMode.light,
       builder: (theme, darkTheme) => MaterialApp(
+        debugShowCheckedModeBanner: false,
         scaffoldMessengerKey: messengerKey,
         title: 'PavliText',
         theme: theme,
@@ -120,10 +121,8 @@ class _StatusPageeState extends State<StatusPage> {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            // __email verification widget__
             return const VerifyEmailPage();
           } else {
-            // __authentication__
             return const AuthPage();
           }
         },

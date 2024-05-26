@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pavli_text/widget_classes/chats/chat_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,8 +11,7 @@ import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 class ContactWidget extends StatefulWidget {
   final Map<String, dynamic> data;
   final DocumentSnapshot<Object?> doc;
-  const ContactWidget({Key? key, required this.data, required this.doc})
-      : super(key: key);
+  const ContactWidget({super.key, required this.data, required this.doc});
 
   @override
   _ContactWidgetState createState() => _ContactWidgetState();
@@ -110,22 +110,40 @@ class _ContactWidgetState extends State<ContactWidget> {
     try {
       storage.refFromURL(contact["ProfilePicUrl"]);
       return AnimatedContainer(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
             border: Border.all(
                 color: viewedWidget(Colors.black, Colors.blue),
                 width: viewedWidget(0.0, 3.5)),
             borderRadius: BorderRadius.circular(100)),
-        child: ProfilePicture(
+        child: CircleAvatar(
+          child: CachedNetworkImage(
+            imageUrl: contact["ProfilePicUrl"],
+            height: 60,
+            width: 60,
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+            imageBuilder: (context, imageProvider) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image(
+                  image: imageProvider,
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          ),
+        ),
+        /*ProfilePicture(
           name: contact["Nickname"],
           radius: viewedWidget(21.0, 17.5),
           fontsize: 21,
           img: contact["ProfilePicUrl"],
-        ),
+        ),*/
       );
     } catch (e) {
       return AnimatedContainer(
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           decoration: viewedWidget(
               null,
               BoxDecoration(
@@ -220,7 +238,7 @@ class _ContactWidgetState extends State<ContactWidget> {
             onContractTap(widget.doc.id);
           },
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
             decoration: BoxDecoration(
                 color: viewedWidget(null, null),

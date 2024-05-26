@@ -14,20 +14,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  //
-  // widget called from _auth.dart_
-  // responsibile for showing widgets required for registration
-  // widgets:
-  // - text: "Register"
-  // - text form field: "Email"
-  // - text form field: "Password"
-  // - text form field: "Confirm Password"
-  // - button: "Log In":
-  //   - _VoidCallback showLogInPage_
-  // - button: "Sign Up"
-  //   - calls signUp function
-  //
-
   final formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -37,34 +23,29 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    // disposes controlers /idk
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  // strats when _sign up button is clicked_
   Future signUp() async {
     final isValid = formKey.currentState!.validate();
-    // chechs if things are right /idk how it works
     if (isValid) {
       if (_passwordController.text.trim() ==
           _confirmPasswordController.text.trim()) {
         try {
-          // creates new user in firebase auth
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
               email: _emailController.text.trim(),
               password: _passwordController.text.trim());
         } on FirebaseAuthException catch (e) {
-          // if something goes wrong it tells you so
           Utils.showSnackBar(e.message);
         }
       } else {
-        Utils.showSnackBar("Passwords do not match");
+        Utils.showSnackBar("Passwords do not match.");
       }
     } else {
-      Utils.showSnackBar("Something went wrong. Check entered data");
+      Utils.showSnackBar("Something went wrong.");
     }
   }
 
@@ -80,7 +61,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // __REGISTER__
                     const Text(
                       "Register",
                       style: TextStyle(
@@ -88,11 +68,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           fontSize: 33,
                           color: Colors.blue),
                     ),
-                    // __SIZED BOX__
                     const SizedBox(
                       height: 15,
                     ),
-                    // __EMAIL__
                     Container(
                       margin:
                           const EdgeInsetsDirectional.fromSTEB(25, 5, 25, 5),
@@ -118,7 +96,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 : null,
                       ),
                     ),
-                    // __PASSWORD__
                     Container(
                       margin:
                           const EdgeInsetsDirectional.fromSTEB(25, 5, 25, 5),
@@ -154,7 +131,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             : null,
                       ),
                     ),
-                    // __CONFIRM PASSWORD__
                     Container(
                       margin:
                           const EdgeInsetsDirectional.fromSTEB(25, 5, 25, 5),
@@ -187,18 +163,14 @@ class _RegisterPageState extends State<RegisterPage> {
                             hintText: "Confirm Password"),
                       ),
                     ),
-                    // __SIZED BOX__
                     const SizedBox(
                       height: 10,
                     ),
-                    // __BUTTONS__
                     Container(
                         child: Center(
                       child: Row(
                         children: [
-                          // __spacer__
                           const Spacer(),
-                          // __log in__
                           GestureDetector(
                             onTap: widget.showLogInPage,
                             child: Container(
@@ -217,11 +189,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                   ),
                                 )),
                           ),
-                          // __sized box__
                           const SizedBox(
                             width: 10,
                           ),
-                          // __sign up__
                           GestureDetector(
                             onTap: signUp,
                             child: Container(
@@ -231,9 +201,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                   color: Colors.white,
                                   border: Border.all(color: Colors.blue),
                                   borderRadius: BorderRadius.circular(20),
-                                  // ignore: prefer_const_literals_to_create_immutables
-                                  boxShadow: [
-                                    const BoxShadow(
+                                  boxShadow: const [
+                                    BoxShadow(
                                         offset: Offset(2, 2),
                                         blurRadius: 5,
                                         color: Colors.grey)
@@ -250,7 +219,6 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                           ),
-                          // __spacer__
                           const Spacer(),
                         ],
                       ),

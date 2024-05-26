@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pavli_text/utils/utils.dart';
@@ -758,12 +759,29 @@ class _ChatPageState extends State<ChatPage> {
     try {
       storage.refFromURL(contact["ProfilePicUrl"]);
       return Container(
-        child: ProfilePicture(
+        child: CircleAvatar(
+          child: CachedNetworkImage(
+            imageUrl: contact["ProfilePicUrl"],
+            height: 60,
+            width: 60,
+            placeholder: (context, url) => const CircularProgressIndicator(),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+            imageBuilder: (context, imageProvider) {
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image(
+                  image: imageProvider,
+                  fit: BoxFit.cover,
+                ),
+              );
+            },
+          ),
+        ), /*ProfilePicture(
           name: contact["Nickname"],
           radius: 21.0,
           fontsize: 21,
           img: contact["ProfilePicUrl"],
-        ),
+        ),*/
       );
     } catch (e) {
       return Container(

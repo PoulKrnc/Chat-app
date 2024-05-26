@@ -65,7 +65,7 @@ class _ContactsPageState extends State<ContactsPage> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height - 220,
+                height: MediaQuery.of(context).size.height - 120,
                 margin: const EdgeInsetsDirectional.fromSTEB(0, 5, 0, 5),
                 padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 0, 0),
                 child: StreamBuilder<QuerySnapshot>(

@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:pavli_text/widget_classes/contact_widget.dart';
@@ -115,7 +114,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
   void waiter() async {
     String str = "Blocked contacts";
     for (int i = 0; i < str.length; i++) {
-      await Future.delayed(Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 10));
       setState(() {
         title += str[i];
       });
@@ -124,7 +123,6 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     waiter();
   }
@@ -188,7 +186,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                           children: [
                             Spacer(),
                             Text(
-                              "Your contact list is empty for now",
+                              "Your blocked contact list is empty for now",
                               style: TextStyle(fontSize: 17),
                             ),
                             Spacer()
@@ -213,7 +211,7 @@ class _BlockedContactsPageState extends State<BlockedContactsPage> {
                               doc["LastChatDate"].toString();
                             } catch (e) {
                               log(e.toString());
-                              return Text("No data");
+                              return const Text("No data");
                             }
                             if (!doc["Blocked"]) {
                               return Container();
@@ -305,16 +303,11 @@ class _PeopleSearchState extends State<PeopleSearch> {
         variations.add(currentString);
         return;
       }
-
-      // Generate variations with current character as uppercase
       generateVariations(currentString + input[index].toUpperCase(), index + 1);
-
-      // Generate variations with current character as lowercase
       generateVariations(currentString + input[index].toLowerCase(), index + 1);
     }
 
     generateVariations("", 0);
-
     return variations;
   }
 
@@ -372,7 +365,6 @@ class _PeopleSearchState extends State<PeopleSearch> {
 
   @override
   void initState() {
-    // TODO: implement initState
     animation();
     super.initState();
   }

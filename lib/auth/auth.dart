@@ -10,13 +10,6 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
-  //
-  // widget called from _main.dart_
-  // responsibile for switching between __login page__ and __register page__
-  //
-  // variable:
-  // 	if true shows __login page__
-  // 	else shows __register page__
   bool showLogInPage = true;
 
   void toggleScreens() {
@@ -40,11 +33,5 @@ class _AuthPageState extends State<AuthPage> {
           ? LogInPage(showRegisterPage: toggleScreens)
           : RegisterPage(showLogInPage: toggleScreens),
     );
-    /*
-    if (showLogInPage) {
-      return LogInPage(showRegisterPage: toggleScreens);
-    } else {
-      return RegisterPage(showLogInPage: toggleScreens);
-    }*/
   }
 }

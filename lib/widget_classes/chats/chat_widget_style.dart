@@ -191,6 +191,14 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
     log(code);
   }
 
+  Color colorSelect() {
+    if (widget.doc["Sender"] == widget.user) {
+      return Colors.black;
+    } else {
+      return Colors.blue;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -264,9 +272,11 @@ class _ChatWidgetStyleState extends State<ChatWidgetStyle> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                widget.doc["Sender"].toString(),
-                                style: const TextStyle(
-                                    color: Colors.blue,
+                                widget.doc["Sender"].toString() == widget.user
+                                    ? "You"
+                                    : widget.doc["Sender"].toString(),
+                                style: TextStyle(
+                                    color: colorSelect(),
                                     fontWeight: FontWeight.bold),
                                 textScaler:
                                     TextScaler.linear(widget.scaleFactor),

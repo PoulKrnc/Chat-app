@@ -4,12 +4,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:animate_gradient/animate_gradient.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:date_time/date_time.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:pavli_text/widget_classes/game_widgets/my_animated_gradient.dart';
@@ -72,8 +68,6 @@ class _TictactoeState extends State<Tictactoe> {
             .get())
         .data()!["ChatName"];
     log(chatId);
-
-    //pushNotification(text);
     await db.collection("chats").doc(chatId).collection("chats").add({
       "Text": text,
       "Sender": widget.data["Nickname"],
@@ -155,14 +149,6 @@ class _TictactoeState extends State<Tictactoe> {
       "opponent": doc.id,
       "gameSession": sessionDoc.id
     });
-    /*await db
-        .collection("nicknames")
-        .doc(doc.id)
-        .collection("games")
-        .doc("TicTacToe")
-        .set({
-      "online": false,
-    });*/
     sendMessage(doc.id, sessionDoc.id);
   }
 
@@ -280,13 +266,6 @@ class _TictactoeState extends State<Tictactoe> {
         tokenList = [];
       }
     });
-    /*mFunc.httpsCallable("sendNotification").call({
-          "tokens": tokenList,
-          "title": widget.data["Nickname"],
-          "body": message
-        }).then((value) {
-          log(value.data.toString());
-        });*/
     for (String tokenL in tokenList) {
       try {
         Map<String, Object> body;
@@ -296,7 +275,6 @@ class _TictactoeState extends State<Tictactoe> {
           "notification": {"title": widget.data["Nickname"], "body": message}
         };
 
-        // ignore: unused_local_variabledd
         var res = await post(Uri.parse("https://fcm.googleapis.com/fcm/send"),
             body: jsonEncode(body),
             headers: {
@@ -323,7 +301,6 @@ class _TictactoeState extends State<Tictactoe> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     loadContacts();
   }
@@ -352,6 +329,7 @@ class _TictactoeState extends State<Tictactoe> {
         title: Hero(
             tag: "TicTacToe",
             child: Container(
+              decoration: const BoxDecoration(),
               child: Text("TicTacToe",
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                         fontSize: 20,
@@ -373,7 +351,6 @@ class _TictactoeState extends State<Tictactoe> {
                     snapshot.data!.data() == null ||
                     !snapshot.hasData) {
                   // IF GAME IS NOT EVEN SET UP #ERROR
-                  //gameSetup();
                   return MyAnimatedGradient(
                     child: Center(
                       child: GestureDetector(

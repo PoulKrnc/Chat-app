@@ -1,8 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api, prefer_typing_uninitialized_variables, avoid_print, avoid_unnecessary_containers, prefer_final_fields
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pavli_text/widget_classes/game_page.dart';
 import 'contacts_page.dart';
 import 'profile_page.dart';
@@ -26,15 +25,27 @@ class _HomePageState extends State<HomePage> {
   var db = FirebaseFirestore.instance;
   var data1;
   PageController _pageController = PageController(initialPage: 1);
+  Map<String, dynamic> userData = {};
 
   @override
   void initState() {
-    // ignore: todo
-    // TODO: implement initState
     super.initState();
+    userData = widget.data;
     setState(() {
       _selectedIndex = widget.index;
       _pageController = PageController(initialPage: widget.index);
+    });
+  }
+
+  void setData() async {
+    await db
+        .collection("nicknames")
+        .doc(widget.data["Nickname"])
+        .get()
+        .then((value) {
+      setState(() {
+        userData = value.data()!;
+      });
     });
   }
 
@@ -44,21 +55,19 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: PageView(
-          controller: _pageController, // PageController instance
-          onPageChanged: _onPageChanged, // Function to handle page change
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
           children: <Widget>[
             GamePage(
-              data: widget.data,
+              data: userData,
               setupsList: widget.setupsList,
             ),
             ContactsPage(
-              data: widget.data,
+              data: userData,
               setupsList: widget.setupsList,
             ),
             ProfilePage(
-              data: widget.data,
-              setupsList: widget.setupsList,
-            )
+                data: userData, setupsList: widget.setupsList, setData: setData)
           ],
         ),
         bottomNavigationBar: _bottomNavigationBar());

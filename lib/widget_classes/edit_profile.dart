@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:pavli_text/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,31 +18,30 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   final user = FirebaseAuth.instance.currentUser!;
+  final storage = FirebaseStorage.instance;
   bool isProfileSet = false;
   var db = FirebaseFirestore.instance;
   final _dateController = TextEditingController();
-  //
   final _genderController = TextEditingController();
   final _quoteController = TextEditingController();
   String dropdownValue = "None";
   List<String> genders = ["Male", "Female", "None"];
-  //
   String profilePicUrl = "";
   late Reference uploadRef;
   late Map<String, dynamic> data1;
+  bool setupReady = false;
 
   void editProfile() async {
     await db
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.email!)
         .update({
-      "Date_born": _dateController.text.trim(),
+      "DateOfBirth": _dateController.text.trim(),
     });
     await db.collection("nicknames").doc(widget.data["Nickname"]).update({
-      "Date_born": _dateController.text.trim(),
+      "DateOfBirth": _dateController.text.trim(),
       "Mail": FirebaseAuth.instance.currentUser!.email!,
       "ProfilePicUrl": profilePicUrl,
-      "Gender": dropdownValue
     });
     Navigator.pop(context);
   }
@@ -79,15 +80,11 @@ class _EditProfileState extends State<EditProfile> {
       setState(() {
         data1 = value.data()!;
         profilePicUrl = data1["ProfilePicUrl"];
-        _dateController.text = data1["Date_born"];
-        if (data1["Gender"] == "Male") {
-          dropdownValue = "Male";
-        } else if (data1["Gender"] == "Female") {
-          dropdownValue = "Female";
-        } else {
-          dropdownValue = "None";
-        }
+        _dateController.text = data1["DateOfBirth"];
       });
+    });
+    setState(() {
+      setupReady = true;
     });
   }
 
@@ -102,6 +99,9 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    if (!setupReady) {
+      return Utils.loadingScaffold();
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit profile"),
@@ -118,13 +118,13 @@ class _EditProfileState extends State<EditProfile> {
                     flex: 3,
                     child: Container(
                         margin:
-                            const EdgeInsetsDirectional.fromSTEB(25, 5, 5, 5),
+                            const EdgeInsetsDirectional.fromSTEB(25, 5, 25, 5),
                         padding:
                             const EdgeInsetsDirectional.fromSTEB(15, 0, 15, 0),
                         decoration: BoxDecoration(
                           color: Theme.of(context).cardColor,
                           border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(13),
                         ),
                         child: Center(
                             child: IntrinsicWidth(
@@ -135,67 +135,28 @@ class _EditProfileState extends State<EditProfile> {
                                 hintText: "Date of birth",
                                 prefixIcon: Icon(Icons.calendar_today),
                                 prefixIconColor: Colors.blue,
-                                border: InputBorder.none //label text of field
-                                ),
-
+                                border: InputBorder.none),
                             readOnly: true,
-                            //set it true, so that user will not able to edit text
                             onTap: () async {
                               DateTime? pickedDate = await showDatePicker(
                                   context: context,
                                   initialDate: DateTime.now(),
                                   firstDate: DateTime(1950),
-                                  //DateTime.now() - not to allow to choose before today.
                                   lastDate: DateTime.now());
 
                               if (pickedDate != null) {
-                                //pickedDate output format => 2021-03-10 00:00:00.000
-                                String formattedDate = DateFormat('yyyy-MM-dd')
-                                    .format(
-                                        pickedDate); //formatted date output using intl package =>  2021-03-16
+                                String formattedDate =
+                                    DateFormat('yyyy-MM-dd').format(pickedDate);
                                 setState(() {
-                                  _dateController.text =
-                                      formattedDate; //set output date to TextField value.
+                                  _dateController.text = formattedDate;
                                 });
                               } else {}
                             },
                           ),
                         ))),
                   ),
-                  //HHH
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                        margin:
-                            const EdgeInsetsDirectional.fromSTEB(5, 5, 25, 5),
-                        padding:
-                            const EdgeInsetsDirectional.fromSTEB(15, 0, 15, 0),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          border: Border.all(color: Colors.blue),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: DropdownButton(
-                            borderRadius: BorderRadius.circular(10),
-                            items: genders.map((String gender) {
-                              return DropdownMenuItem(
-                                value: gender,
-                                child: Text(gender),
-                              );
-                            }).toList(),
-                            onChanged: (newValue) {
-                              setState(() {
-                                dropdownValue = newValue!;
-                              });
-                            },
-                            value: dropdownValue,
-                          ),
-                        )),
-                  ),
                 ],
               ),
-              //HHH
               GestureDetector(
                 onTap: uploadImage,
                 child: Container(
@@ -205,17 +166,15 @@ class _EditProfileState extends State<EditProfile> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       border: Border.all(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(13),
                     ),
                     child: Center(
                       child: Row(
                         children: [
                           const Spacer(),
                           CircleAvatar(
-                              backgroundImage: profilePicUrl == ""
-                                  ? const AssetImage(
-                                      "assets/empty_profile_picture.jfif")
-                                  : Image.network(profilePicUrl).image),
+                              backgroundImage:
+                                  Image.network(profilePicUrl).image),
                           const SizedBox(
                             width: 20,
                           ),
@@ -238,7 +197,7 @@ class _EditProfileState extends State<EditProfile> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       border: Border.all(color: Colors.blue),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(13),
                     ),
                     child: const Center(
                       child: Row(

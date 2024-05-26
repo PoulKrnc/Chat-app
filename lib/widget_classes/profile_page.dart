@@ -1,5 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api, prefer_interpolation_to_compose_strings
+// ignore_for_file: library_private_types_in_public_api, prefer_interpolation_to_compose_strings, use_build_context_synchronously
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pavli_text/set_stuff/settings_page.dart';
 import 'package:pavli_text/utils/utils.dart';
 import 'package:pavli_text/widget_classes/edit_profile.dart';
@@ -12,8 +14,12 @@ import 'package:flutter_profile_picture/flutter_profile_picture.dart';
 class ProfilePage extends StatefulWidget {
   final Map<String, dynamic> data;
   final Map<String, dynamic> setupsList;
-  const ProfilePage({Key? key, required this.data, required this.setupsList})
-      : super(key: key);
+  final Function setData;
+  const ProfilePage(
+      {super.key,
+      required this.data,
+      required this.setupsList,
+      required this.setData});
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -25,6 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
   var nicknameData;
   bool setupReady = false;
   bool profileSwitch = false;
+  final storage = FirebaseStorage.instance;
 
   void setup() async {
     await db
@@ -34,12 +41,18 @@ class _ProfilePageState extends State<ProfilePage> {
         .then((value) {
       setState(() {
         nicknameData = value.data();
+        widget.setData();
       });
     });
     setupReady = true;
   }
 
-  void dialogBuilder(BuildContext context) {}
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    widget.setData();
+  }
 
   void logOut() async {
     List<dynamic> tokenList = [];
@@ -58,6 +71,36 @@ class _ProfilePageState extends State<ProfilePage> {
         .update({"tokenList": tokenList});
     Navigator.pop(context);
     FirebaseAuth.instance.signOut();
+  }
+
+  Widget profilePicture(var d) {
+    try {
+      storage.refFromURL(d["ProfilePicUrl"]);
+      return CircleAvatar(
+        child: CachedNetworkImage(
+          imageUrl: d["ProfilePicUrl"],
+          height: 80,
+          width: 80,
+          placeholder: (context, url) => const CircularProgressIndicator(),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
+          imageBuilder: (context, imageProvider) {
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: Image(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
+            );
+          },
+        ),
+      );
+    } catch (e) {
+      return ProfilePicture(
+        name: d["Nickname"],
+        radius: 21.0,
+        fontsize: 21,
+      );
+    }
   }
 
   @override
@@ -227,12 +270,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ProfilePicture(
+                          profilePicture(widget.data),
+                          /*ProfilePicture(
                             name: widget.data["Nickname"],
                             radius: 38,
                             fontsize: 21,
                             img: nicknameData["ProfilePicUrl"],
-                          ),
+                          ),*/
                           Container(
                             margin: const EdgeInsets.fromLTRB(9, 0, 0, 0),
                             padding: const EdgeInsets.fromLTRB(11, 11, 11, 11),
@@ -279,7 +323,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    "Birthday: ${widget.data["Date_born"]}",
+                    "Birthday: ${widget.data["DateOfBirth"]}",
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Text("Version: " + widget.setupsList["Version"]),

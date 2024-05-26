@@ -19,7 +19,7 @@ class ProfileSetup extends StatefulWidget {
 class _ProfileSetupState extends State<ProfileSetup> {
   final user = FirebaseAuth.instance.currentUser!;
   bool isProfileSet = false;
-  var db;
+  var db = FirebaseFirestore.instance;
   final _nickNameController = TextEditingController();
   final _dateController = TextEditingController();
   String profilePicUrl = "";
@@ -36,14 +36,14 @@ class _ProfileSetupState extends State<ProfileSetup> {
           .doc(FirebaseAuth.instance.currentUser!.email!)
           .set({
         "Nickname": _nickNameController.text.trim(),
-        "Date_born": _dateController.text.trim(),
+        "DateOfBirth": _dateController.text.trim(),
       });
       await db
           .collection("nicknames")
           .doc(_nickNameController.text.trim())
           .set({
         "Nickname": _nickNameController.text.trim(),
-        "Date_born": _dateController.text.trim(),
+        "DateOfBirth": _dateController.text.trim(),
         "Mail": FirebaseAuth.instance.currentUser!.email!,
         "ProfilePicUrl": profilePicUrl
       });
@@ -57,28 +57,36 @@ class _ProfileSetupState extends State<ProfileSetup> {
   bool checked = false;
 
   void checkIfExists() async {
-    final result = await FirebaseFirestore.instance
+    var result = await FirebaseFirestore.instance
         .collection('users')
         .doc(user.email!)
         .get();
+    if (!result.exists) {
+      setState(() {
+        isProfileSet = false;
+        checked = true;
+      });
+      return;
+    }
+    var result1 = await FirebaseFirestore.instance
+        .collection('nicknames')
+        .doc(result.data()!["Nickname"])
+        .get();
+    if (result.exists && result1.exists) {
+      setState(() {
+        isProfileSet = result.exists;
+      });
+    }
     setState(() {
-      isProfileSet = result.exists;
       checked = true;
     });
   }
 
-  void timer() async {
-    checkIfExists();
-    await Future.delayed(const Duration(seconds: 1));
-  }
-
   void uploadImage() async {
-    printY("uploadImge");
     ImagePicker imagePicker = ImagePicker();
     XFile? file = await imagePicker.pickImage(
         source: ImageSource.gallery, imageQuality: 65);
     if (file == null) {
-      printY("null");
       return;
     }
 
@@ -100,9 +108,7 @@ class _ProfileSetupState extends State<ProfileSetup> {
   @override
   void initState() {
     super.initState();
-    db = FirebaseFirestore.instance;
     checkIfExists();
-    timer();
     _dateController.text = "";
   }
 
@@ -161,26 +167,20 @@ class _ProfileSetupState extends State<ProfileSetup> {
                             hintText: "Date of birth",
                             prefixIcon: Icon(Icons.calendar_today),
                             prefixIconColor: Colors.blue,
-                            border: InputBorder.none //label text of field
-                            ),
-
+                            border: InputBorder.none),
                         readOnly: true,
-                        //set it true, so that user will not able to edit text
                         onTap: () async {
                           DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(1950),
-                              //DateTime.now() - not to allow to choose before today.
                               lastDate: DateTime(2100));
 
                           if (pickedDate != null) {
-                            //pickedDate output format => 2021-03-10 00:00:00.000
-                            String formattedDate = DateFormat('yyyy-MM-dd').format(
-                                pickedDate); //formatted date output using intl package =>  2021-03-16
+                            String formattedDate =
+                                DateFormat('yyyy-MM-dd').format(pickedDate);
                             setState(() {
-                              _dateController.text =
-                                  formattedDate; //set output date to TextField value.
+                              _dateController.text = formattedDate;
                             });
                           } else {}
                         },
@@ -203,10 +203,8 @@ class _ProfileSetupState extends State<ProfileSetup> {
                           children: [
                             const Spacer(),
                             CircleAvatar(
-                                backgroundImage: profilePicUrl == ""
-                                    ? const AssetImage(
-                                        "assets/empty_profile_picture.jfif")
-                                    : Image.network(profilePicUrl).image),
+                                backgroundImage:
+                                    Image.network(profilePicUrl).image),
                             const SizedBox(
                               width: 20,
                             ),
