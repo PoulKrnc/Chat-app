@@ -1,8 +1,8 @@
 # PavliText
 
-A simple chat app made using flutter and firebase.
+A simple chat app made with Flutter and Firebase.
 
-I made it for final high school project and aced it with 100%
+I made it for final high school project
 
 
 More in documentation -> "DokumentacijaPavelKrnc.pdf"
