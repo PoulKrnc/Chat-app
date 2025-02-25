@@ -5,8 +5,9 @@ A simple chat app made with Flutter and Firebase.
 I made it for final high school project
 
 
-More in documentation -> "DokumentacijaPavelKrnc.pdf"
+Documentation can be found in files -> "DokumentacijaPavelKrnc.pdf"
 
+Android download link: https://drive.google.com/drive/folders/1BX0crES7qzlpwU7jgPFYW651DiI98XNl?usp=drive_link
 
 Some pictures:
 
@@ -21,7 +22,5 @@ Some pictures:
 ![image](https://github.com/user-attachments/assets/fc82de65-cca0-43c1-8a82-a2190694af24)
 
 ![image](https://github.com/user-attachments/assets/f8b77e6b-dc98-400f-a23c-c9ce2f4c7e98)
-
-
 
 
