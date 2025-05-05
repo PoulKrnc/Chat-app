@@ -1,6 +1,6 @@
 # PavliText
 
-A simple chat app made with Flutter and Firebase.
+A simple Android app for sending and receiving text messages with friends. It also features image and file sending, and a TicTacTou mini-game that you can invite friends to play.
 
 I made it for final high school project
 
